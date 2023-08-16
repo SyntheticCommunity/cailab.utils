@@ -14,15 +14,19 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
 Imports: 
+    agricolae,
     ape,
     Biostrings,
     dplyr,
     DT,
     ggplot2,
+    ggrepel,
     ggtree,
     kableExtra,
     knitr,
     magrittr,
     muscle,
+    rlang,
+    tibble,
     tidyr,
     treeio
