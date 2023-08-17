@@ -18,7 +18,7 @@
 #'   sort_combination(c("A1/A11/A2/B3/D5/C11","A1/A11/A25/B3/D18/C11") )
 sort_combination = function(x, sep = "/"){
   l = lapply(x, function(s){
-    str_split_1(s, sep) %>%
+    str_split(s, sep, simplify = TRUE) %>%
       str_sort(numeric = TRUE) %>%
       paste0(collapse = sep)
   })
