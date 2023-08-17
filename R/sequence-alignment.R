@@ -47,10 +47,8 @@ tree_from_aln = function(aln, dist.method = "hamming"){
 #' @param tip.label tip.label mapping
 #' @param tip.color tip.color mapping
 #'
-#' @return
+#' @return a ggplot object
 #' @export
-#'
-#' @examples
 plot_tree = function(tree, tip.label = "label", tip.color = "parent"){
   ggtree::ggtree(tree) +
     ggtree::geom_tiplab(ggplot2::aes(
