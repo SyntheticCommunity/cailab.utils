@@ -3,7 +3,7 @@
 #'
 #'
 #'
-#' @param fasta_file sequence file in fasta format
+#' @param fasta_file sequence file(s) in fasta format, if a vector is provided, all files will be read.
 #' @param quiet silent MUSCLE progress
 #'
 #' @return a alignment object
@@ -22,6 +22,13 @@ run_alignment_with_muscle = function(fasta_file, quiet = TRUE){
 }
 
 
+#' Construct a phylogenetic tree from sequence alignment
+#'
+#' @param aln a 'DNAMultipleAlignment' object
+#' @param dist.method method to caculate distance
+#'
+#' @return a tree
+#' @export
 tree_from_aln = function(aln, dist.method = "hamming"){
   dist = Biostrings::stringDist(
     x = Biostrings::DNAStringSet(aln),
@@ -32,6 +39,18 @@ tree_from_aln = function(aln, dist.method = "hamming"){
 }
 
 
+#' Plot tree with ggtree
+#'
+#' By default, this function plot a tree with tip labels and colors.
+#'
+#' @param tree tree
+#' @param tip.label tip.label mapping
+#' @param tip.color tip.color mapping
+#'
+#' @return
+#' @export
+#'
+#' @examples
 plot_tree = function(tree, tip.label = "label", tip.color = "parent"){
   ggtree::ggtree(tree) +
     ggtree::geom_tiplab(ggplot2::aes(
