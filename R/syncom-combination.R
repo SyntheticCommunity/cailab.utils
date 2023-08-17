@@ -34,10 +34,12 @@ sort_combination = function(x, sep = "/"){
 #' @param strict if TRUE only child will be considered
 #'
 #' @return TRUE or FALSE
-#' @example is_child("A/B/C/D", "A/B/C")
+#' @examples
+#' # example code
+#'  is_child("A/B/C/D", "A/B/C")
 is_child = function(parent, child, sep = "/", strict = TRUE){
-  parent_member = str_split(parent, pattern = sep, simplify = TRUE)
-  child_member = str_split(child, pattern = sep, simplify = TRUE)
+  parent_member = stringr::str_split(parent, pattern = sep, simplify = TRUE)
+  child_member = stringr::str_split(child, pattern = sep, simplify = TRUE)
   # only keep child
   if (!strict) {
     return(all(child_member %in% parent_member))
@@ -55,7 +57,9 @@ is_child = function(parent, child, sep = "/", strict = TRUE){
 #' @return logcial
 #' @export
 #'
-#' @example is_relative("A/B/C","A/B")
+#' @examples
+#' # example code
+#'  is_relative("A/B/C","A/B")
 is_relative = function(item1, item2){
   if (is_child(item1, item2, strict = FALSE)) return(TRUE)
   if (is_child(item2, item1, strict = FALSE)) return(TRUE)
@@ -76,7 +80,7 @@ is_relative = function(item1, item2){
 #' sub_community("A/B/C/D", depth = 1)
 sub_community = function(x, sep = "/", depth = 0){
   strains = str_split(x, pattern = sep, simplify = TRUE)
-  comb_id = ggVennDiagram:::combinations(length(strains))
+  comb_id = combinations(length(strains))
   if (depth != 0){
     keep = sapply(comb_id, function(x) length(strains) - length(x) <= depth)
     comb_id = comb_id[keep]
