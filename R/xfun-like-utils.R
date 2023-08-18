@@ -34,7 +34,7 @@
 #' paste2(s1, s2, s3, sep = ',', collapse = "/")
 #' paste2(s1, s2, s3, sep = ',', collapse = "/", na.rm = TRUE)
 paste2 <- function(..., sep = " ", collapse = NULL, na.rm = TRUE) {
-  dots <- list(...)
+  dots <- list(...)  # 这个 paste2 会改变向量长度，引起意想不到的结果
 
   # get rid of empty strings
   dots <- lapply(dots, function(x) {

@@ -67,8 +67,8 @@ DT_table = function(df){
 #' @return a table
 #' @export
 #'
-#' @examples kable_classic(head(iris))
-kable_classic = function(tibble){
+#' @examples kable_classic2(head(iris))
+kable_classic2 = function(tibble){
   tibble %>%
     knitr::kable(digits = 3, col.names = var2header(colnames(tibble))) %>%
     kableExtra::kable_classic(font_size = 10, full_width = FALSE)
