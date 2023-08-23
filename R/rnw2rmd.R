@@ -24,7 +24,7 @@ rnw2rmd <- function(file,
   # list of replacement
   pat <- list(
     c(from = "\\\\maketitle",                to = ""),
-    c(from = "(?<!\\\\)%.+",                 to = ""), # if "50% "
+    c(from = "(?<!\\\\)%.+",                 to = ""), # if "50% " (in quote)
     # comment
     c(from = "\\\\%",                        to = "%"),
     # %
