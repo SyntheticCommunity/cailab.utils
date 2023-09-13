@@ -11,8 +11,8 @@
 #'
 #' @param data data
 #' @param method aov
-#' @param group group variable, should be a column in data
-#' @param value values, should be a column in data
+#' @param x group variable, should be a column in data
+#' @param y values, should be a column in data
 #' @param with_jitter add jitter points
 #' @param label_repel use ggrepel to plot label
 #'
@@ -27,34 +27,34 @@
 #'
 #' @examples
 #'  data("PlantGrowth")
-#'  gg_boxplot_with_group(PlantGrowth, group = "group", value = "weight")
+#'  gg_boxplot_with_group(PlantGrowth, "group", "weight")
 gg_boxplot_with_group = function(data,
-                                 group,
-                                 value,
+                                 x,
+                                 y,
                                  method = "aov",
                                  with_jitter = TRUE,
                                  label_repel = TRUE){
   # run statistical analysis
   model = do.call(what = method,
-                  list(formula = stats::formula(paste0(value, " ~ ", group)),
+                  list(formula = stats::formula(paste0(y, "~", x)),
                        data = data))
   # get groups
   out = agricolae::duncan.test(model,
-                               trt = group)
+                               trt = x)
 
   # prepare group data
   groups = out$groups %>%
-    rownames_to_column(var = {{ group }})
+    rownames_to_column(var = {{ x }})
   label_pos = out$means %>%
-    rownames_to_column(var = {{ group }}) %>%
+    rownames_to_column(var = {{ x }}) %>%
     mutate(group_pos = .data$Max + .data$se) %>%  # use Max + se for place group label
-    left_join(groups, by = {{ group }}) %>%
-    select(c(group, "groups", "group_pos"))
+    left_join(groups, by = {{ x }}) %>%
+    select(c(x, "groups", "group_pos"))
 
   # plot
   p = ggplot(data = data,
-             aes(x = .data[[group]],  # I don't know why {{}} isn't work
-                 y = .data[[value]])) +
+             aes(.data[[x]],  # I don't know why {{}} isn't work
+                 .data[[y]])) +
     geom_boxplot(outlier.shape = NA)
 
   if (with_jitter){
@@ -68,7 +68,7 @@ gg_boxplot_with_group = function(data,
   }
 
   p = p + label_geom(
-    mapping = aes(x = .data[[group]],
+    mapping = aes(.data[[x]],
                   y = .data$group_pos,
                   label = groups),
     data = label_pos)
@@ -83,9 +83,10 @@ gg_boxplot_with_group = function(data,
 #' @param y y
 #' @param method stat method, default is 'wilcox.test'
 #' @param label default is 'p.signif'
-#' @param ... pass to `ggpubr::stat_compare_means()`
+#' @inheritParams ggpubr::stat_compare_means
+#' @inheritDotParams ggpubr::stat_compare_means
 #'
-#' @return
+#' @return a ggplot object
 #' @export
 #'
 #' @examples

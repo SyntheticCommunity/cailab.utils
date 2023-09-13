@@ -38,6 +38,7 @@
 #' @param add_strain the id of added strains, which should contains 6 members
 #' @param dim c(8,8)
 #' @param return_array return an array if TRUE
+#' @param sep separator
 #'
 #' @return a tibble or an array
 #' @export
@@ -101,7 +102,7 @@ one_plate = function(plate_id = "P1",
 #' @return a string
 #' @export
 #'
-#' @importFrom stringr str_sort str_split_1
+#' @importFrom stringr str_sort str_split
 #'
 #' @examples
 #'   sort_combination("A1/A11/A2/B3/D5/C11")
@@ -122,8 +123,9 @@ sort_combination = function(x, sep = "/"){
 #' @param child child community
 #' @param sep separator of community string
 #' @param strict if TRUE only child will be considered
-#'
 #' @return TRUE or FALSE
+#'
+#' @export
 #' @examples
 #' # example code
 #'  is_child("A/B/C/D", "A/B/C")
