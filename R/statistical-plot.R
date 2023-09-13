@@ -76,3 +76,36 @@ gg_boxplot_with_group = function(data,
   return(p)
 }
 
+#' boxplot
+#'
+#' @param data data frame
+#' @param x x
+#' @param y y
+#' @param method stat method, default is 'wilcox.test'
+#' @param label default is 'p.signif'
+#' @param ... pass to `ggpubr::stat_compare_means()`
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'   data("PlantGrowth")
+#'   gg_boxplot(PlantGrowth, group, weight, ref.group = "ctrl")
+#'   gg_boxplot(PlantGrowth,group, weight, ref.group = "ctrl",
+#'              method = "t.test", label = "p.format")
+gg_boxplot = function(data, x, y,
+                      method = "wilcox.test",
+                      label = "p.signif",
+                      ref.group = NULL,
+                      comparisons = NULL,
+                      ...){
+  p = ggplot2::ggplot(data, ggplot2::aes({{ x }}, {{ y }})) +
+    ggplot2::geom_boxplot(outlier.shape = NA) +
+    ggplot2::geom_jitter() +
+    ggpubr::stat_compare_means(method = method,
+                               ref.group = ref.group,
+                               comparisons = comparisons,
+                               label = label,
+                               ...)
+  return(p)
+}
