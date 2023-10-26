@@ -1,29 +1,29 @@
-#' Resample melting curve data
+#' Re-sample melting curve data
 #'
-#' @param curve_data 
-#' @param group 
-#' @param from 
-#' @param to 
-#' @param by 
-#' @param variable 
-#' @param method 
+#' @param curve_data raw data
+#' @param group group
+#' @param from start of temperature
+#' @param to end of temperature
+#' @param by step
+#' @param variable  c("fluorescence", "derivative")
+#' @param method c("linear", "constant", "nearest", "spline", "pchip", "cubic")
 #'
 #' @return
 #' @export
 #'
 #' @examples
-curve_resample = function(curve_data, 
-                                 group = "well_position", 
-                                 from = 70, 
-                                 to = 90, 
+curve_resample = function(curve_data,
+                                 group = "well_position",
+                                 from = 70,
+                                 to = 90,
                                  by = 0.1,
                                  variable = c("fluorescence", "derivative"),
                                  method = c("linear", "constant", "nearest", "spline", "pchip", "cubic")){
   variable = match.arg(variable)
   method = match.arg(method)
-  df = curve_data %>% 
-    dplyr::select( {{ group }}, temperature, {{ variable }}) %>% 
-    dplyr::nest_by( !!dplyr::sym(group) ) 
+  df = curve_data %>%
+    dplyr::select( {{ group }}, temperature, {{ variable }}) %>%
+    dplyr::nest_by( !!dplyr::sym(group) )
   new_data = lapply(df[["data"]], curve_interp1, from = from, to = to, by = by, variable = variable, method = method)
   df$data = new_data
   df %>% tidyr::unnest(cols = "data")
@@ -59,11 +59,11 @@ curve_interp1 = function(data, from, to, by, variable, method){
 sinc_reconstruction <- function(xx, yy, xi) {
 
   sinc <- function(x) {ifelse(x == 0, 1, sin(pi*x)/(pi*x))}
-  
+
   yi <- sapply(xi, function(x_i) {
     sum(yy * sinc(x_i - xx))
   })
-  
+
   return(yi)
 }
 

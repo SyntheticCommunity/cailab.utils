@@ -6,29 +6,28 @@
 #' @return
 #' @export
 #'
-#' @examples
 plot_384_community_structure = function(data, cols = dplyr::starts_with("concentration")){
-  require(ggforce)
+  requireNamespace("ggforce")
   p = plot_384(data)
   df = p$data %>%
     tidyr::pivot_longer(cols = cols,
                  names_to = "species",
                  values_to = "quantity")
   p +
-    ggforce::geom_arc_bar(aes(x0 = col, y0 = row, r0 = 0, r = 0.4, amount = quantity, fill = species), 
-                 stat = "pie", 
-                 data = df, 
-                 inherit.aes = FALSE) 
+    ggforce::geom_arc_bar(aes(x0 = col, y0 = row, r0 = 0, r = 0.4, amount = quantity, fill = species),
+                 stat = "pie",
+                 data = df,
+                 inherit.aes = FALSE)
 }
 
 
 #' Plot 384 well species quantity of a single species
 #'
-#' @inheritParams plot_384_community_structure data 
-#' @param species 
-#' @param trans 
-#' @param palette 
-#' @param na.value 
+#' @param data
+#' @param species
+#' @param trans
+#' @param palette
+#' @param na.value
 #'
 #' @return
 #' @export
