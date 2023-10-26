@@ -24,7 +24,8 @@ rnw2rmd <- function(file,
   # list of replacement
   pat <- list(
     c(from = "\\\\maketitle",                to = ""),
-    c(from = "(?<!\\\\)%.+",                 to = ""), # if "50% " (in quote)
+    c(from = "^%.+",                 to = ""),
+    # c(from = "(?<!\\\\)%.+",                 to = ""), # if "50% "
     # comment
     c(from = "\\\\%",                        to = "%"),
     # %
@@ -86,10 +87,23 @@ rnw2rmd <- function(file,
     # link
     c(from = "\\\\url{(.+?)}",               to = "<\\1>"),
     c(from = "\\\\href{(.+?)}{(.+?)}",       to = "[\\2](\\1)"),
+    c(from = "\\\\href{(.+?){(.+?)}}",       to = "[\\2](\\1)"),  # another form
+
+
+    # language
+    c(from = "R{}",               to = " R "),
+    c(from = "C{}",               to = " C "),
+
+    # blank
+    c(from = "\textemdash",           to = ""),  # 连字符
+    c(from = "^\\\\clearpage",        to = ""),  # 空白页
+    c(from = "^\\\\newlength.+",      to = ""),
+    c(from = "^\\\\setlength.+",      to = ""),
 
 
     c(from = "\\\\ldots",                    to = "\\.\\.\\."),
     c(from = "\\\\label{",                   to = " {#"),
+
     # only for sections
     c(from = "\\\\deseqtwo{}",               to = "DESeq2"),
     c(from = "\\\\footnote{(.+?)}",          to = "[^\\1]"),

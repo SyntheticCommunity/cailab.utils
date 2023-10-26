@@ -1,0 +1,133 @@
+---
+title: "TODO"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{TODO}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(cailab.utils)
+```
+
+## Rnw 转换
+
+### 添加 vignette 设置
+
+``` yaml
+vignette: >
+  %\VignetteIndexEntry{normal}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+```
+
+### 转换时的 bug
+
+**%**
+
+```         
+w <- which(!subseq(dna, 1, 3) %in% c("ATG", "GTG", "TTG"))
+
+50%
+
+50\%
+```
+
+### 插入图片的转化
+
+**插入外源图片**
+
+``` latex
+\begin{wrapfigure}{r}{0.31\textwidth}
+\includegraphics[width=0.31\textwidth]{ObscurinStructure}
+\caption{ {#f1} Partial predicted structure of the human protein Obscurin showing the repeated Ig domains.}
+\end{wrapfigure}
+```
+
+**插入生成的图片**
+
+```` latex
+\begin{centerfig}
+```{{r expr3,eval=TRUE,echo=TRUE,fig=TRUE,height=3.5,width=6}}
+# ...
+plot(tree)
+```
+\caption{ {#f1} Maximum likelihood tree showing the relationships between *Streptomyces* species.}
+\end{centerfig}
+````
+
+### 引用
+
+``` latex
+\begin{quotation}
+This is exemplified by the finding that large segments of genetic information, that is, of DNA, turn out to be homologous, not only in the same organism, but also among different organisms, even among those that are phylogenetically distant. Similarly, as more is known about amino acid sequences in proteins, it appears not only that proteins fulfilling similar functions in different organisms have frequently similar sequences, but also that proteins with different functions also exhibit rather large segments in common.
+\end{quotation}
+```
+
+### 排版格式
+
+``` latex
+\clearpage
+
+
+
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+```
+
+### Chunk options
+
+涉及加引号和大小写的问题。
+
+```         
+results=hide
+
+echo=false
+```
+
+### 多余的元素
+
+``` latex
+\title{Growing phylogenetic trees with TreeLine}
+\author{Erik S. Wright}
+\date{\today}
+
+
+\newenvironment{centerfig}
+{\begin{figure}[htp]\centering}
+{\end{figure}}
+\renewcommand{\indent}{\hspace*{\tindent}}
+\DefineVerbatimEnvironment{Sinput}{Verbatim} {xleftmargin=2em} \DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em} \DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em} \fvset{listparameters={\setlength{\topsep}{0pt}}} \renewenvironment{Schunk}{\vspace{\topsep}}{\vspace{\topsep}}
+\SweaveOpts{keep.source=TRUE}
+```
+
+### 交叉引用
+
+``` latex
+values [@Anisimova:2011]. 
+
+(Fig. \@ref(f1))
+```
+
+### 非必需元素
+
+**Term**
+
+``` latex
+the \term{Bacteroidetes} sequences
+
+\R{}
+
+\C{}
+
+see \@ref(taxid) (\nameref{taxid}) below.
+```

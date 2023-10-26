@@ -1,7 +1,7 @@
 Package: cailab.utils
 Type: Package
 Title: Collection of data analysis utilities in Cai Lab @ HZAU
-Version: 0.1.7
+Version: 0.2
 Author: c(
   person("Chun-Hui","Gao",email="gaospecial@gmail.com",role=c("aut","cre"), comment=c(ORCID = "0000-0002-1445-7939"))
   )
@@ -21,6 +21,7 @@ Imports:
     dplyr,
     DT,
     ggplot2,
+    ggpubr,
     ggrepel,
     ggtree,
     kableExtra,
@@ -33,5 +34,10 @@ Imports:
     stringr,
     tibble,
     tidyr,
-    treeio
+    treeio,
+    usethis,
+    xfun
 Roxygen: list(markdown = TRUE)
+Suggests: 
+    rmarkdown
+VignetteBuilder: knitr
