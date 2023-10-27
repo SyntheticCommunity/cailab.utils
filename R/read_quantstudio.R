@@ -10,7 +10,7 @@ read_quantstudio = function(file){
   require(readr)
   lines = readLines(file)
   lines = lines[-grep("^$", lines)]
-  
+
   # find the start line of different set
   set_linenum = grep("^\\[.+\\]$", lines)
   nset = length(set_linenum)
@@ -18,7 +18,7 @@ read_quantstudio = function(file){
   set_name = lines[set_linenum]
   set_from = set_linenum + 1
   set_to = c(set_linenum[-1] - 1, nrow)
-  
+
   # read set data one by one
   raw = vector("list", nset)
   for (i in 1:nset){
@@ -39,22 +39,54 @@ read_quantstudio = function(file){
 
 lower_join = function(x){
   require(stringr)
-  tolower(x) %>% 
+  tolower(x) %>%
     stringr::str_replace("\\s", "_")
 }
 
+#' Get melting curve from QuantStudio dataset
+#'
+#' @param x QuantStudio dataset
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_quantstudio_melting_curve = function(x){
   get_by_name(x, pattern = "Melt Curve Raw Data")
 }
 
+#' Get amplication data from QuantStudio dataset
+#'
+#' @param x  QuantStudio dataset
+#'
+#' @return a tibble
+#' @export
+#'
+#' @examples
 get_quantstudio_amplication = function(x){
   get_by_name(x, "Amplification Data")
 }
 
+#' Get raw data from QuantStudio dataset
+#'
+#' @param x  QuantStudio dataset
+#'
+#' @return a tibble
+#' @export
+#'
+#' @examples
 get_quantstudio_raw = function(x){
   get_by_name(x, "Raw Data")
 }
 
+#' Get analysis results from QuantStudio dataset
+#'
+#' @param x  QuantStudio dataset
+#'
+#' @return a tibble
+#' @export
+#'
+#' @examples
 get_quantstudio_result = function(x){
   get_by_name(x, "Results")
 }
