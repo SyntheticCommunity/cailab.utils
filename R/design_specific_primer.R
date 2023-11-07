@@ -1,12 +1,22 @@
 #' Design specific primer
 #'
 #' @param fasta_file fasta format
+#' @param minLength primer min length
+#' @param maxLength primer max length
+#' @param minProductSize product min length
+#' @param maxProductSize product max length
+#' @param verbose if TRUE, will print progress during the run
 #'
 #' @return primers
 #' @export
 #'
 #' @examples
-design_specific_primer = function(fasta_file, ...){
+design_specific_primer = function(fasta_file,
+                                  minLength = 20,
+                                  maxLength = 25,
+                                  minProductSize = 150,
+                                  maxProductSize = 500,
+                                  verbose = FALSE){
   require("DECIPHER")
   dbConn <- dbConnect(SQLite(), ":memory:")
   seqs = Biostrings::readDNAStringSet(fasta_file)
@@ -19,9 +29,17 @@ design_specific_primer = function(fasta_file, ...){
           dbFile = dbConn,
           identifier = acc,
           processors = NULL,
-          verbose = FALSE)
-  tiles = TileSeqs(dbConn, add2tbl="Tiles", minCoverage=1, verbose = FALSE)
-  primers = lapply(acc, function(x) .design_primers(tiles = tiles, identifier = x, ...))
+          verbose = verbose)
+  tiles = TileSeqs(dbConn, add2tbl="Tiles", minCoverage=1, verbose = verbose)
+  primers = lapply(acc, function(x){
+    .design_primers(tiles = tiles,
+                    identifier = x,
+                    minLength = minLength,
+                    maxLength = maxLength,
+                    minProductSize = minProductSize,
+                    maxProductSize = maxProductSize,
+                    verbose = verbose)
+    })
   primers = dplyr::bind_rows(primers)
   DBI::dbDisconnect(dbConn)
   return(primers)
@@ -30,22 +48,25 @@ design_specific_primer = function(fasta_file, ...){
 # design primer using DECIPHER, with optimized settings
 .design_primers = function(tiles,
                            identifier,
-                           minCoverage = 1,
+                           verbose = FALSE,
                            minLength = 20,
-                           minGroupCoverage = 1,
-                           numPrimerSets = 1,
+                           maxLength = 25,
                            minProductSize = 150,
-                           maxProductSize = 500){
+                           maxProductSize = 500,
+                           numPrimerSets = 1,
+                           minCoverage = 1,
+                           minGroupCoverage = 1){
   primers = DECIPHER::DesignPrimers(tiles = tiles,
                             identifier = identifier,
-                            verbose = FALSE,
+                            verbose = verbose,
                             processors = NULL,
-                            minCoverage = minCoverage,
                             minLength = minLength,
-                            minGroupCoverage = minGroupCoverage,
-                            numPrimerSets = numPrimerSets,
+                            maxLength = maxLength,
                             minProductSize = minProductSize,
-                            maxProductSize = maxProductSize)
+                            maxProductSize = maxProductSize,
+                            numPrimerSets = numPrimerSets,
+                            minCoverage = minCoverage,
+                            minGroupCoverage = minGroupCoverage)
   primers = .format_decipher_primer(primers)
   return(primers)
 }
