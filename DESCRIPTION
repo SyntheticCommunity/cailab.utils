@@ -18,6 +18,7 @@ Imports:
     ape,
     Biostrings,
     bookdown,
+    DECIPHER,
     dplyr,
     DT,
     ggplot2,
