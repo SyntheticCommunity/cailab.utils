@@ -1,0 +1,76 @@
+---
+title: "design-primer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{design-primer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(cailab.utils)
+```
+
+## 设计常规 PCR 引物
+
+使用 Primer3 设计常规引物。
+
+```{r}
+library(rPrimer3)
+fas = system.file("sequence.fa", package = "rPrimer3")
+design_primer_from_file(fas, parts = 1)
+```
+
+
+
+## 设计菌株特异性引物
+
+
+
+```{r}
+library(cailab.utils)
+devtools::load_all()
+design_specific_primer(fas)
+```
+
+## 使用 unikmer
+
+```{r}
+Sys.setenv(UNIKMER="/home/gaoch/anaconda3/envs/kprimer/bin/unikmer")
+```
+
+```{bash}
+$UNIKMER
+```
+
+
+```{zsh}
+$UNIKMER
+```
+
+
+
+
+## 设计克隆引物
+
+**获取匹配序列**
+
+
+**添加酶切位点**
+
+
+**调优引物性能**
+
+## 验证引物扩增
+
+```{r}
+
+```
+
