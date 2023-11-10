@@ -19,18 +19,34 @@ design_specific_primer = function(fasta_file,
                                   verbose = FALSE){
   require("DECIPHER")
   dbConn <- dbConnect(SQLite(), ":memory:")
+  on.exit(dbDisconnect(dbConn))
   seqs = Biostrings::readDNAStringSet(fasta_file)
   acc = names(seqs)
   if (length(unique(acc)) != length(acc)){
     stop("Sequences have duplicated ids. Please fix it and rerun this function.")
   }
+
+  # seqs = msa::msa(seqs,
+  #                 method = "ClustalOmega",
+  #                 verbose = verbose)
+  # seqs = Biostrings::DNAStringSet(seqs)
+
+
   Seqs2DB(seqs,
           type = "XStringSet",
           dbFile = dbConn,
           identifier = acc,
           processors = NULL,
           verbose = verbose)
-  tiles = TileSeqs(dbConn, add2tbl="Tiles", minCoverage=1, verbose = verbose)
+
+  tiles = TileSeqs(dbConn,
+                   add2tbl="Tiles",
+                   minLength = maxLength,
+                   maxLength = maxLength + 1,
+                   minCoverage = 1,
+                   processors = NULL,
+                   verbose = verbose)
+
   primers = lapply(acc, function(x){
     .design_primers(tiles = tiles,
                     identifier = x,
@@ -41,7 +57,6 @@ design_specific_primer = function(fasta_file,
                     verbose = verbose)
     })
   primers = dplyr::bind_rows(primers)
-  DBI::dbDisconnect(dbConn)
   return(primers)
 }
 
@@ -65,6 +80,7 @@ design_specific_primer = function(fasta_file,
                             minProductSize = minProductSize,
                             maxProductSize = maxProductSize,
                             numPrimerSets = numPrimerSets,
+                            maxPermutations = 1,
                             minCoverage = minCoverage,
                             minGroupCoverage = minGroupCoverage)
   primers = .format_decipher_primer(primers)
