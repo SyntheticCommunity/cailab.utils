@@ -1,10 +1,6 @@
 ---
 title: "Design specific primer with unikmer & R"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{design-primer-with-unikmer-and-R}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: rmarkdown::html_document
 ---
 
 ```{r, include = FALSE}
@@ -24,15 +20,19 @@ Sys.setenv(UNIKMER="/home/gaoch/anaconda3/envs/kprimer/bin/unikmer")
 I have 30 genomes, and want to design specific primers for each of them.
 
 ```{bash}
-ls *.fa.gz
+ls -l *.fa.gz
 ```
 
 Specific primer means a pair of primers that can amplify a DNA segment with 
 the genomic DNA of strain 1 but not with all the DNA of the other 29 strains.
 
-## Primer Design
+## Get Specific DNA
+
+Get strain/genome specific DNA fragments.
 
 ### Generation of non-duplicate kmer
+
+**Note**: 下面的脚本仅供参考（已过时）。
 
 Since 20 nt is enough for a primer, so we start with `k = 20`.
 
@@ -50,7 +50,7 @@ Check the info of generated kmers.
 
 ```{bash}
 # get info
-echo "$UNIKMER info of non-replicate kmers"
+echo -e "Unikmer info of non-replicate kmers:\n"
 
 # would be fine if info also give the number of kmer count (uniq/all)
 $UNIKMER info *.single.unik
@@ -58,11 +58,11 @@ $UNIKMER info *.single.unik
 
 ### Remove common kmers
 
-Common kmers shared by >5 genomes will be removed. After that, unique subsequences are assembled by the resting kmers.
+Common kmers shared by >5 genomes will be removed. After that, unique sub-sequences are assembled by the resting kmers.
 
 ```{bash}
 # get the shared unique kmers between different genomes
-$UNIKMER common --number 5 -o shared *.single.unik
+$UNIKMER common --number 3 -o shared *.single.unik
 
 # remove shared kmers from unique kmers
 for f in *.fa.gz; do
@@ -81,7 +81,7 @@ Show the info of shared and genome-specific kmers.
 
 ```{bash}
 # get info
-echo "$UNIKMER info of shared and specific kmers"
+echo -e "UNIKMER info of shared and specific kmers:\n"
 $UNIKMER info shared.unik *.specific.unik
 ```
 
@@ -89,7 +89,7 @@ How many kmers in different strains?
 
 ```{bash}
 # number of specific kmers in different strains
-echo "file\tkmers"
+echo -e "file\tkmers"
 ls *.specific.unik | xargs -I {} sh -c "echo -n \"{}\t\" && $UNIKMER view {} | wc -l"
 ```
 
@@ -121,14 +121,92 @@ for f in *.fa.gz; do
 done
 ```
 
+
+### Shenwei's pipeline
+
+我把我写的流程发给我沈伟征求意见，它给出了下列的代码。这里面的主要改进由：
+
+- 用了干净的工作区
+
+- 更好的 `unikmer` 设置
+  
+  在生成 kmer 的时候，允许重复 kmer 的产生（去掉了 `--unique` 参数）；在“组装”（`uniqs/map`）时允许 kmer 多次使用（增加了 `-M` 参数）。这有利于在最后的组装时获得更长的特异性序列。
+  
+  在使用基因组时对序列进行过滤（如 `# sequences with name containing "plasmid" is removed ('-B/--seq-name-filter plasmid')`）。
+  
+  
+  
+- 使用 `rush` 实现了并行计算。
+
+  直接进化到 `rush`，非常好用！以后跟 `xargs` 拜拜了。用于展示操作逻辑的时候，`for` 应该还会用得到。
+  
+  `rush` 一下真的快很多，而且执行进度提醒非常友好！ 
+
+
+```{bash eval=FALSE}
+glob="*.fa.gz"  # glob of the genome files
+dir="/media/gaoch/BAK/unikmer-db"        # where the genomes are
+ws=ws2           # working space
+threads=16      # number of cpu threads
+
+## symlink files
+mkdir -p $ws
+# find "$dir/" -maxdepth 1 -name "$glob" | rush -v t=$ws 'ln -s {} -t {t}'
+find "$dir/" -maxdepth 1 -name "$glob" | rush "ln -s {} -t $ws"
+
+
+## generating k-mers from each genome
+# only kepp the caninical k-mers ('-K/--canonical')
+# sequences with name containing "plasmid" is removed ('-B/--seq-name-filter plasmid')
+# sort output (-s/--sort)
+find $ws/ -name "$glob" \
+    | rush 'unikmer count --canonical --circular -k 31 --seq-name-filter plasmid --sort -o "{:}.k31" "{}"' --eta -c -C count.rush
+
+
+## computing k-mers shared by >= 2 files
+unikmer common -n 2 --infile-list <(find $ws/ -name "*.k31.unik") -o shared --verbose
+
+
+## remove common k-mers
+find $ws/ -name "$glob" \
+    | rush 'unikmer diff -s -o "{:}.k31.uniq" "{:}.k31.unik" shared.unik' --eta -c -C diff.rush
+
+
+## mapping specific k-mers to each input genome
+# allow multiple mapped k-mers (-M/--allow-multiple-mapped-kmer)
+# ouput fasta (-a/--output-fasta)
+# filter genome sequence by string (-B/--seq-name-filter)
+find $ws/ -name "$glob" \
+    | rush 'unikmer map -m 31 -M -a -B plasmid -g "{}" "{:}.k31.uniq.unik" \
+        | seqkit sort -l -r -o "{:}.k31.specific.fasta"' --eta -k -c -C map.rush
+        
+## summary genome/strain specific sequences
+find $ws/ -name "*.k31.specific.fasta" | seqkit stats --infile-list - -o stats.txt
+
+## find longest specific sequence
+# only keep one sequence for a strain，保留最长的一条
+find $ws/ -name "*.k31.specific.fasta" \
+  | rush 'seqkit sort -lr {} | seqkit head -n 1 -o "{^.specific.fasta}.one.fa" --quiet' --eta -k -c -C head.rush
+```
+
+## Designing Primers
+
 ### Run Primer3
 
 Using **rPrimer3** to design primer with `*.one.fa` sequences.
 
+```{bash}
+find $ws/ -maxdepth 1 -name "*.k31.one.fa" \
+  | rush 'Rscript -e "rPrimer3::design_primer_from_file(R.utils::cmdArgs()[[1]], parts = 1)" {} > {:}.primer' --eta -k -c -C primer3.rush
+```
+
+
 ```{r echo=FALSE, warning=FALSE, message=FALSE, results='hide'}
 library(rPrimer3)
 library(dplyr)
-dna = list.files(pattern = "*.one.fa$")
+dna = list.files(pattern = "*.one.fa$", 
+                 path = "/media/gaoch/BAK/unikmer-db/ws2",
+                 full.names = TRUE)
 strain = unlist(gsub(".one.fa", "", dna))
 primers = lapply(dna, design_primer_from_file, parts = 1)
 names(primers) = strain
@@ -159,21 +237,26 @@ template = genome[idx,]
 names(template) = source[idx]
 ```
 
+::: {.panel-tabset}
 
-
-```{r results='asis'}
-for (i in seq_along(primers)){
+```{r}
+for (i in seq_along(primers)[1:3]){
   primer = primers[[i]]
+  sub = paste("###", strain[[i]], collapse = "\n")
+  knitr::asis_output(sub)
+  print(primer, "\n")
   product = AmplifyDNA(primer$sequence, 
                        template, 
                        annealingTemp = 55, 
                        P = 4e-7, 
                        maxProductSize = 1000, 
                        minEfficiency = 0.2)
-  knitr::asis_output(product)
+  print(product)
+  print("\n\n")
 }
 ```
 
+:::
 
 ## Supplementary information
 
@@ -182,6 +265,13 @@ for (i in seq_along(primers)){
 ```{bash}
 $UNIKMER
 ```
+
+### Session info
+
+```{r}
+sessionInfo()
+```
+
 
 ### The content of R script
 
@@ -206,28 +296,34 @@ suppressPackageStartupMessages(library(rPrimer3))
 suppressPackageStartupMessages(library(DECIPHER))
 
 args = cmdArgs()
-fas = args$file[[1]]
+fas = args[[1]]
 
 
 # design primer
-message("\nPrimer of \"", fas, "\": ")
 primer = design_primer_from_file(fas, parts = 1)
-print(primer)
 
 # read all genomes
-file = list.files(pattern="*.fa.gz")
+file = list.files(pattern="*.fa.gz",
+                  path = "/media/gaoch/BAK/unikmer-db/",
+                  full.names = TRUE)
 genome = readDNAStringSet(file)
-n = sapply(file, function(x) system(paste("zgrep '>' ", x ," | wc -l"), intern=TRUE))
-source = rep(file,times = n) |> gsub(pattern=".fa.gz", replacement="")
-idx =  !stringr::str_detect(names(genome),"plasmid") 
+cmd = paste("seqkit stats", paste(file,collapse = " "))
+txt = system(cmd, intern=TRUE)
+txt = gsub(" +", " ", txt) |> unlist()
+stat = read.delim(text = txt, sep = " ")
+n = stat$num_seqs
+source = rep(basename(file),times = n) |> gsub(pattern=".fa.gz", replacement="")
+idx =  !stringr::str_detect(names(genome), "plasmid")
 template = genome[idx,]
 names(template) = source[idx]
 
 # test primer
 product = AmplifyDNA(primer$sequence, template, annealingTemp=55, P = 4e-7, maxProductSize=1500, minEfficiency = 0.2)
-message("\nThe products using above primer are: ")
-print(product)
 
-message("\n\n")
+print("## Primer")
+print(primer)
+print("## Product")
+print(product)
+print("")
 ```
 
