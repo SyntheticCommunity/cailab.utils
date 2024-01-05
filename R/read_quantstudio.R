@@ -9,10 +9,14 @@
 read_quantstudio = function(file){
   require(readr)
   lines = readLines(file)
-  lines = lines[-grep("^$", lines)]
+
+  # remove empty line
+  empty_linenum = grep("^$", lines)
+  if (length(empty_linenum > 0)) lines = lines[-empty_linenum]
 
   # find the start line of different set
   set_linenum = grep("^\\[.+\\]$", lines)
+  if (length(set_linenum) < 1) stop("No valid data in this file. Please check.")
   nset = length(set_linenum)
   nrow = length(lines)
   set_name = lines[set_linenum]
