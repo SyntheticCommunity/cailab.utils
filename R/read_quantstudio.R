@@ -38,6 +38,7 @@ read_quantstudio = function(file){
                           col_types = type)
   }
   names(raw) = set_name
+  class(raw) = "QuantStudioRaw"
   return(raw)
 }
 
@@ -100,3 +101,18 @@ get_by_name = function(x, pattern){
   idx = grep(pattern, name)
   x[[idx]]
 }
+
+
+
+#' Print user-friendly information of a object
+#'
+#' @param object a object
+#' @method print QuantStudioRaw
+#' @rdname quantstudio
+#' @name quantastudio
+#' @docType methods
+#' @export
+print.QuantStudioRaw = function(object){
+            cat("An object of class 'QuantStudioDaw':\n")
+            cat("   Slots: ", paste0(names(object), collapse = ", "), ";\n", sep = "")
+          }
