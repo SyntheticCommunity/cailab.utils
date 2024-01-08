@@ -22,7 +22,7 @@ design_specific_primer = function(fasta_file,
   on.exit(dbDisconnect(dbConn))
   seqs = Biostrings::readDNAStringSet(fasta_file)
   acc = names(seqs)
-  if (length(unique(acc)) != length(acc)){
+  if (length(unique(acc)) != length(acc)) {
     stop("Sequences have duplicated ids. Please fix it and rerun this function.")
   }
 
@@ -40,7 +40,7 @@ design_specific_primer = function(fasta_file,
           verbose = verbose)
 
   tiles = TileSeqs(dbConn,
-                   add2tbl="Tiles",
+                   add2tbl = "Tiles",
                    minLength = maxLength,
                    maxLength = maxLength + 1,
                    minCoverage = 1,
@@ -91,7 +91,7 @@ design_specific_primer = function(fasta_file,
 # format DECIPHER output to a small tibble
 .format_decipher_primer = function(primers){
   columns = c("forward_primer","reverse_primer")
-  for (col in columns){
+  for (col in columns) {
     primers[[col]] = primers[[col]][,1]
   }
   primers |>
