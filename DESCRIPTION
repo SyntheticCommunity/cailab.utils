@@ -26,8 +26,8 @@ Imports:
     ggrepel,
     ggtree,
     kableExtra,
-    knitr,
     magrittr,
+    methods,
     muscle,
     pak,
     purrr,
@@ -36,9 +36,10 @@ Imports:
     tibble,
     tidyr,
     treeio,
-    usethis,
     xfun
 Roxygen: list(markdown = TRUE)
 Suggests: 
+    usethis,
+    knitr,
     rmarkdown
 VignetteBuilder: knitr

@@ -7,7 +7,6 @@
 #'
 #' @examples
 read_quantstudio = function(file){
-  require(readr)
   lines = readLines(file)
 
   # remove empty line
@@ -25,13 +24,13 @@ read_quantstudio = function(file){
 
   # read set data one by one
   raw = vector("list", nset)
-  for (i in 1:nset){
+  for (i in 1:nset) {
     content = lines[set_from[i]:set_to[i]]
     type = NULL
-    if (grepl("Well", content[1])){
+    if (grepl("Well", content[1])) {
       type = list(well = 'c')
     }
-    raw[[i]] = read_delim(I(content),
+    raw[[i]] = readr::read_delim(I(content),
                           trim_ws = TRUE,
                           show_col_types = FALSE,
                           name_repair = lower_join,

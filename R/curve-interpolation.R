@@ -13,12 +13,12 @@
 #'
 #' @examples
 curve_resample = function(curve_data,
-                                 group = "well_position",
-                                 from = 70,
-                                 to = 90,
-                                 by = 0.1,
-                                 variable = c("fluorescence", "derivative"),
-                                 method = c("linear", "constant", "nearest", "spline", "pchip", "cubic")){
+                           group = "well_position",
+                           from = 70,
+                           to = 90,
+                           by = 0.1,
+                           variable = c("fluorescence", "derivative"),
+                           method = c("linear", "constant", "nearest", "spline", "pchip", "cubic")){
   variable = match.arg(variable)
   method = match.arg(method)
   df = curve_data %>%
