@@ -2,20 +2,24 @@
 
 ## Data intergration
 
+- [ ] MeltingCurve (`mc_`) object
 - [ ] curve + label
 - [ ] curve + curve
 - [ ] simulation data (Gibbs free energy minimization)
+- [ ] remove/filter well
+- [ ] remove/filter temperature
 
 ## Curve analysis
 
 - [x] resample function
 - [ ] scale/normalization
+- [x] baseline subtraction
 - [ ] distance calculation
 - [ ] correlation
 
 
-- [ ] smoothing
-- [ ] find peaks
+- [x] smoothing
+- [x] find peaks
 
 
 - [ ] curve to scalogram/picture, 

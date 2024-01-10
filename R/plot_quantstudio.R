@@ -1,28 +1,51 @@
-#' Plot real-time PCR melting curve
+#' Plot real-time PCR melting/amplification curve
 #'
-#' @param data 
-#' @param y 
+#' @name quantstudio-plot
 #'
-#' @return
+#' @param data plot data
+#' @param y mapping of y
+#' @param show_tm if TRUE will plot the TM on melting curve
+#' @param tm_nums how many TM, default is 1. But can be 2 if have two PCR products.
+#'
+#' @return a ggplot object
 #' @export
-#'
-#' @examples
-plot_quantstudio_melting_curve = function(data, y = c("fluorescence", "derivative")){
+plot_quantstudio_melting_curve = function(data,
+                                          y = c("fluorescence", "derivative"),
+                                          show_tm = FALSE,
+                                          tm_nums = 1){
   y = match.arg(y)
-  data %>% 
-    ggplot2::ggplot(ggplot2::aes_string("temperature", y, color = "well_position")) +
-    ggplot2::geom_line(show.legend = FALSE) 
+  if (show_tm) y = "derivative"
+  p = data %>%
+    ggplot2::ggplot(ggplot2::aes(.data[["temperature"]],
+                    .data[[y]],
+                    color = .data[["well_position"]])) +
+    ggplot2::geom_line(show.legend = FALSE)
+  if (show_tm) {
+    peak = mc_get_tm(data, npeaks = tm_nums)
+    p = p +
+      ggplot2::geom_point(
+        ggplot2::aes(.data$peak_position,
+                     .data$peak_height,
+                     color = .data$well_position),
+        shape = 21,
+        alpha = 0.8,
+        data = peak,
+        show.legend = FALSE) +
+      ggrepel::geom_text_repel(
+        mapping = aes(.data$peak_position,
+                      .data$peak_height,
+                      color = .data$well_position,
+                      label = .data$peak_position),
+        show.legend = FALSE,
+        data = peak
+      )
+    return(p)
+  } else {
+    return(p)
+  }
 }
 
-#' Plot real-time amplification curve
-#'
-#' @param data 
-#' @param y 
-#'
-#' @return
-#' @export
-#'
-#' @examples
+#' @rdname quantstudio-plot
 plot_quantstudio_amplification_curve = function(data, y = c("rn", "delta_rn")){
   y = match.arg(y)
   data %>%

@@ -21,29 +21,23 @@ setClass("MeltingCurve",
 #' @param experiment_date default is `Sys.Date()`
 #' @param plate default is "NA"
 #' @param primer default is "NA"
+#' @param col_data keep necessary columns
 #'
 #' @return
 #' @export
 #' @md
-#'
-#' @examples
 quantstudio2mc = function(x,
                           experiment_date = format(Sys.Date(), "%Y%m%d"),
                           plate = "NA",
-                          primer = "V4"){
-  if (inherits(x, "QuantStudioRaw")) {
-    all_data = x
-  } else if (file.exists(x)) {
-    all_data = read_quantstudio(x)
-  } else {
-    stop("Unrecognized x supplied.")
-  }
-  melting_curve = get_quantstudio_melting_curve(all_data)
+                          primer = "NA",
+                          col_data = c("well_position","temperature","derivative")){
+  if (!inherits(x, "QuantStudioRaw")) stop("x is not a valid QuantStudioRaw object")
+  melting_curve = get_quantstudio_melting_curve(x)
   object = methods::new("MeltingCurve",
       experiment_date = experiment_date,
       plate = plate,
       primer = primer,
-      data = melting_curve)
+      data = melting_curve[, col_data])
   return(object)
 }
 
@@ -61,6 +55,38 @@ setMethod("getPrimer", "MeltingCurve", function(object) object@primer)
 setGeneric("getData", function(object) standardGeneric("getData"))
 setMethod("getData", "MeltingCurve", function(object) object@data)
 
+setGeneric("transformData", function(object, ...) standardGeneric("transformData"))
+setMethod("transformData", "MeltingCurve", function(object,
+                                                    limit = tempRange(object),
+                                                    step = 0.03,
+                                                    method = "spline") {
+  mc_data = getData(object)
+  mc_data = curve_resample(mc_data, from = floor(limit[[1]]), to = ceiling(limit[[2]]),
+                           by = step, variable = "derivative", method = method)
+  object@data = mc_data
+  return(object)
+})
+
+# filter data by temperature and well positions
+setGeneric("filterData", function(object, ...) standardGeneric("filterData"))
+setMethod("filterData", "MeltingCurve", function(object,
+                                                 from = 78,
+                                                 to = 85,
+                                                 well_position = NULL) {
+  data = getData(object) |> dplyr::filter(temperature > from, temperature < to)
+  if (!is.null(well_position)) {
+    data = data |> dplyr::filter(well_position %in% well_position)
+  }
+  object@data = data
+  return(object)
+})
+
+# temperature range
+setGeneric("tempRange", function(object, ...) standardGeneric("tempRange"))
+setMethod("tempRange", "MeltingCurve", function(object, na.rm = TRUE) {
+  range(getData(object) |> dplyr::pull(temperature), na.rm = na.rm)
+})
+
 #' Print user-friendly information of object
 #'
 #' @param object a S4 class object
@@ -74,7 +100,9 @@ setMethod("show", c(object = "MeltingCurve"),
             cat("   Slots: ", paste0(slotNames(object), collapse = ", "), ";\n", sep = "")
           })
 
-
+#' @title Transform a MeltingCurve object to tibble
+#'
+#' @param x a MeltingCurve object
 mc2tbl = function(x){
   if (!inherits(x, "MeltingCurve")) stop("x is not a \"MeltingCurve\" object")
   tbl = getData(x) |>
