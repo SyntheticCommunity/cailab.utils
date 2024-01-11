@@ -1,0 +1,56 @@
+---
+title: "melting-curve-class"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{melting-curve-class}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(cailab.utils)
+```
+
+```{r}
+# sample data
+file = "inst/quantstudio/quantstudio-example.txt.gz"
+all_data = read_quantstudio(file)
+mc = quantstudio2mc(all_data)
+mc2 = filterData(mc2, from = 78, to = 85, well_position = paste0("A",1:4))
+```
+
+Compare filtered `mc2` and resampled `mc3`.
+
+```{r}
+getData(mc2)
+mc3 = transformData(mc2, step = 0.03)
+getData(mc3)
+mc4 = transformData(mc2, step = 0.5)
+getData(mc4)
+```
+
+
+```{r}
+file = xfun::magic_path("quantstudio-sample-defination.csv.gz")
+meta = read_csv(file)
+meta2 = meta |> 
+  dplyr::mutate(label_E = round(log2(373.1/as.numeric(label_E))), 
+                label_P = round(log2(450/as.numeric(label_P)))) |> 
+  drop_na() 
+meta2
+```
+
+
+```{r}
+mc_tbl_w = filterData(mc, well_position = unique(meta2$well_position)) |> 
+  getData() |>  
+  mc_tbl2wider()
+mc_tbl_w |> left_join(meta2, by = "well_position")
+```

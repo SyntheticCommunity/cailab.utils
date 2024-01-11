@@ -9,17 +9,14 @@
 #'
 #' @return primers
 #' @export
-#'
-#' @examples
 design_specific_primer = function(fasta_file,
                                   minLength = 20,
                                   maxLength = 25,
                                   minProductSize = 150,
                                   maxProductSize = 500,
                                   verbose = FALSE){
-  require("DECIPHER")
-  dbConn <- dbConnect(SQLite(), ":memory:")
-  on.exit(dbDisconnect(dbConn))
+  dbConn <- DBI::dbConnect(SQLite(), ":memory:")
+  on.exit(DBI::dbDisconnect(dbConn))
   seqs = Biostrings::readDNAStringSet(fasta_file)
   acc = names(seqs)
   if (length(unique(acc)) != length(acc)) {
@@ -32,14 +29,14 @@ design_specific_primer = function(fasta_file,
   # seqs = Biostrings::DNAStringSet(seqs)
 
 
-  Seqs2DB(seqs,
+  DECIPHER::Seqs2DB(seqs,
           type = "XStringSet",
           dbFile = dbConn,
           identifier = acc,
           processors = NULL,
           verbose = verbose)
 
-  tiles = TileSeqs(dbConn,
+  tiles = DECIPHER::TileSeqs(dbConn,
                    add2tbl = "Tiles",
                    minLength = maxLength,
                    maxLength = maxLength + 1,
@@ -96,8 +93,5 @@ design_specific_primer = function(fasta_file,
   }
   primers |>
     dplyr::as_tibble() |>
-    dplyr::select(identifier,
-                  forward_primer,
-                  reverse_primer,
-                  product_size)
+    dplyr::select(dplyr::all_of(c("identifier", "forward_primer","reverse_primer","product_size")))
 }

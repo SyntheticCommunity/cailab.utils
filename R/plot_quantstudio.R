@@ -46,6 +46,7 @@ plot_quantstudio_melting_curve = function(data,
 }
 
 #' @rdname quantstudio-plot
+#' @export
 plot_quantstudio_amplification_curve = function(data, y = c("rn", "delta_rn")){
   y = match.arg(y)
   data %>%

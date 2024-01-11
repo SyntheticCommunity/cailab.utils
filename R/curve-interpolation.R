@@ -8,10 +8,8 @@
 #' @param variable  c("fluorescence", "derivative")
 #' @param method c("linear", "constant", "nearest", "spline", "pchip", "cubic")
 #'
-#' @return
+#' @return a tibble
 #' @export
-#'
-#' @examples
 curve_resample = function(curve_data,
                            group = "well_position",
                            from = 70,
@@ -22,22 +20,29 @@ curve_resample = function(curve_data,
   variable = match.arg(variable)
   method = match.arg(method)
   df = curve_data %>%
-    dplyr::select( {{ group }}, temperature, {{ variable }}) %>%
-    dplyr::nest_by( !!dplyr::sym(group) )
-  new_data = lapply(df[["data"]], curve_interp1, from = from, to = to, by = by, variable = variable, method = method)
+    dplyr::select(dplyr::all_of(c(group, "temperature", variable))) %>%
+    tidyr::nest(data = c("temperature", variable))
+  data = df$data
+  new_data = lapply(seq_along(data), function(i){
+    curve_interp1(data[[i]], from, to, by, variable, method)
+  })
+  new_data = lapply(data, curve_interp1, from = from, to = to, by = by, variable = variable, method = method)
   df$data = new_data
   df %>% tidyr::unnest(cols = "data")
 }
 
 curve_interp1 = function(data, from, to, by, variable, method){
   x_new = seq(from, to, by = by)
+  y_new = vector("numeric", length(x_new))
   if (method %in% c("linear", "nearest", "pchip", "cubic", "spline")) {
     y_new = signal::interp1(data[["temperature"]], data[[variable]], x_new, method = method)
   } else {
     y_new = pracma::interp1(data[["temperature"]], data[[variable]], x_new, method = method)
   }
-  tibble::tibble(temperature = round(x_new, digits = 2),
-         !!variable := round(y_new, digits = 3))
+  tbl = tibble::tibble(x = x_new, y = y_new) |>
+    dplyr::filter(!is.na(.data$y))
+  colnames(tbl) = c("temperature", variable)
+  return(tbl)
 }
 
 #' Reconstruct signal with sinc method
@@ -46,7 +51,7 @@ curve_interp1 = function(data, from, to, by, variable, method){
 #' @param yy a vector of original dependent value at xx
 #' @param xi a vector of target independent variable values for reconstruction
 #'
-#' @return
+#' @return a vector
 #' @export
 #'
 #' @examples

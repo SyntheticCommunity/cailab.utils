@@ -38,7 +38,7 @@ mc_nest_by_well_position = function(tbl){
   tbl |>
     dplyr::select(dplyr::all_of(c("well_position","temperature","derivative"))) |>
     dplyr::filter(!is.na(.data$derivative)) |>
-    dplyr::nest_by(well_position)
+    tidyr::nest(data = c("temperature","derivative"))
 }
 
 #' Remove trend in a melting curve
@@ -51,6 +51,7 @@ mc_rm_trend = function(mc){
 
 }
 
+#' @inheritParams pracma::findpeaks
 #' @rdname curve-signal-process
 detect_tm = function(data, ...){
   temperature = data[["temperature"]]
@@ -68,6 +69,7 @@ detect_tm = function(data, ...){
 #' @param mc a MeltingCurve object
 #' @param method c("spline","polyfit")
 #' @param degree degree of freedom
+#' @rdname curve-signal-process
 mc_baseline = function(mc, method = c("spline","polyfit"), degree = 3){
   method = match.arg(method)
   if (!inherits(mc, "MeltingCurve")) stop("The first argument should be a MeltingCurve class object.")

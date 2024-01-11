@@ -12,8 +12,6 @@
 #'
 #' @return a warning or message
 #' @export
-#'
-#' @examples
 git_add_multiple_push_remote = function(path = ".",
                                         gitee_user = NULL,
                                         github_user = NULL,
@@ -24,7 +22,7 @@ git_add_multiple_push_remote = function(path = ".",
   if (!is.null(github_user)) remote_url$github = paste0(branch, " git@github.com:", github_user, '/', repository,".git")
   cmd = lapply(remote_url, function(x) paste("git remote set-url --add --push", x))
   ret = lapply(cmd, system)
-  if (all(ret == 0)){
+  if (all(ret == 0)) {
     message("Add multiple git push remote successfully.")
     invisible(NULL)
   } else {
@@ -44,7 +42,7 @@ git_delete_push_remote = function(path = ".",
   if (!is.null(github_user)) remote_url$github = paste0(branch, " git@github.com:", github_user, '/', repository, ".git")
   cmd = lapply(remote_url, function(x) paste("git remote set-url --delete --push", x))
   ret = lapply(cmd, system)
-  if (all(ret == 0)){
+  if (all(ret == 0)) {
     message("Delete git push remote successfully.")
     invisible(NULL)
   } else {

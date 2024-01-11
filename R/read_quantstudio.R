@@ -2,10 +2,9 @@
 #'
 #' @param file all in one text file (*.txt)
 #'
-#' @return
+#' @return a list of table, QuantStudioRaw class object
 #' @export
 #'
-#' @examples
 read_quantstudio = function(file){
   lines = readLines(file)
 
@@ -51,10 +50,9 @@ lower_join = function(x){
 #'
 #' @param x QuantStudio dataset
 #'
-#' @return
+#' @return a tibble
 #' @export
 #'
-#' @examples
 get_quantstudio_melting_curve = function(x){
   get_by_name(x, pattern = "Melt Curve Raw Data")
 }
@@ -66,7 +64,6 @@ get_quantstudio_melting_curve = function(x){
 #' @return a tibble
 #' @export
 #'
-#' @examples
 get_quantstudio_amplication = function(x){
   get_by_name(x, "Amplification Data")
 }
@@ -78,7 +75,6 @@ get_quantstudio_amplication = function(x){
 #' @return a tibble
 #' @export
 #'
-#' @examples
 get_quantstudio_raw = function(x){
   get_by_name(x, "Raw Data")
 }
@@ -90,7 +86,6 @@ get_quantstudio_raw = function(x){
 #' @return a tibble
 #' @export
 #'
-#' @examples
 get_quantstudio_result = function(x){
   get_by_name(x, "Results")
 }

@@ -3,18 +3,17 @@
 #' @param data a wider data.frame giving the (relative) quantity of each species, the key column is **well_position**
 #' @param cols specify the columns, which give the quantity of two or more species
 #'
-#' @return
+#' @return a ggplot object
 #' @export
 #'
 plot_384_community_structure = function(data, cols = dplyr::starts_with("concentration")){
-  requireNamespace("ggforce")
   p = plot_384(data)
   df = p$data %>%
     tidyr::pivot_longer(cols = cols,
                  names_to = "species",
                  values_to = "quantity")
   p +
-    ggforce::geom_arc_bar(aes(x0 = col, y0 = row, r0 = 0, r = 0.4, amount = quantity, fill = species),
+    ggforce::geom_arc_bar(aes(x0 = .data$col, y0 = .data$row, r0 = 0, r = 0.4, amount = .data$quantity, fill = .data$species),
                  stat = "pie",
                  data = df,
                  inherit.aes = FALSE)
@@ -23,27 +22,26 @@ plot_384_community_structure = function(data, cols = dplyr::starts_with("concent
 
 #' Plot 384 well species quantity of a single species
 #'
-#' @param data
-#' @param species
-#' @param trans
-#' @param palette
-#' @param na.value
+#' @param data definition of 384 plate
+#' @param species species name
+#' @param trans transformation of species abundance
+#' @param palette fill palette
+#' @param na.value color of NA values
 #'
-#' @return
+#' @return a ggplot object
 #' @export
-#'
-#' @examples
 plot_384_single_concentration = function(data, species, trans = "log2", palette = "Blues", na.value = "white"){
   p = plot_384(data)
-  p = p + aes_string(color = species) +
-    geom_point(size = 5) +
-    scale_color_distiller(trans = trans,
+  p = p + ggplot2::aes_string(color = species) +
+    ggplot2::geom_point(size = 5) +
+    ggplot2::scale_color_distiller(trans = trans,
                           palette = palette,
                           direction = 1,
                           na.value = na.value)
   p
 }
 
+#' @import ggplot2
 plot_384 = function(data = NULL){
   plate = plate384()
   if (!is.null(data)) plate = plate %>% dplyr::left_join(data)
