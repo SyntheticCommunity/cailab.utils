@@ -4,7 +4,7 @@
 #'
 #' @slot experiment_date experiment date
 #' @slot plate plate
-#' @slot primer primer
+#' @slot sample sample table
 #' @slot data curve data
 #' @name mc-class
 #' @rdname melting-curve
@@ -12,7 +12,7 @@ setClass("MeltingCurve",
          slots = list(
            experiment_date = "ANY",
            plate = "ANY",
-           primer = "ANY",
+           sample = "ANY",
            data = "ANY"
            )
 )
@@ -30,16 +30,16 @@ setClass("MeltingCurve",
 #' @md
 #' @rdname melting-curve
 quantstudio2mc = function(x,
-                          experiment_date = format(Sys.Date(), "%Y%m%d"),
+                          experiment_date = get_quantstudio_run_time(x),
                           plate = "NA",
-                          primer = "NA",
+                          sample = "NA",
                           col_data = c("well_position","temperature","derivative")){
   if (!inherits(x, "QuantStudioRaw")) stop("x is not a valid QuantStudioRaw object")
   melting_curve = get_quantstudio_melting_curve(x)
   object = methods::new("MeltingCurve",
       experiment_date = experiment_date,
       plate = plate,
-      primer = primer,
+      sample = sample,
       data = melting_curve[, col_data])
   return(object)
 }
@@ -85,16 +85,13 @@ setMethod("transformData", "MeltingCurve", function(object,
 #'
 #' @export
 #' @rdname melting-curve
-setGeneric("filterData", function(object, ...) standardGeneric("filterData"))
-setMethod("filterData", "MeltingCurve", function(object,
-                                                 from = 78,
-                                                 to = 85,
-                                                 well_position = NULL) {
-  data = getData(object) |> dplyr::filter(.data$temperature > from, .data$temperature < to)
-  if (!is.null(well_position)) {
-    data = data |> dplyr::filter(.data$well_position %in% well_position)
-  }
-  object@data = data
+setGeneric("filterData", function(object, from = NULL, to = NULL, well_position = NULL, ...) standardGeneric("filterData"))
+setMethod("filterData", "MeltingCurve", function(object, from, to, well_position) {
+  mc_data = getData(object)
+  if (!is.null(from)) mc_data = dplyr::filter(mc_data, .data$temperature >= from)
+  if (!is.null(to)) mc_data = dplyr::filter(mc_data, .data$temperature <= to)
+  if (!is.null(well_position)) mc_data = dplyr::filter(mc_data, .data$well_position %in% !!well_position)
+  object@data = mc_data
   return(object)
 })
 
@@ -132,8 +129,7 @@ mc2tbl = function(x){
   if (!inherits(x, "MeltingCurve")) stop("x is not a \"MeltingCurve\" object")
   tbl = getData(x) |>
     dplyr::mutate(date = getDate(x),
-                  plate = getPlate(x),
-                  primer = getPlate(x)) |>
+                  plate = getPlate(x)) |>
     tidyr::unite(well_position, tidyr::all_of(c("date","primer","plate","well_position")))
   return(tbl)
 }

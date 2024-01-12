@@ -1,6 +1,6 @@
 #' Read all values in QuantStudio export
 #'
-#' @param file all in one text file (*.txt)
+#' @param file all in one text file (*.txt.gz)
 #'
 #' @return a list of table, QuantStudioRaw class object
 #' @export
@@ -11,6 +11,10 @@ read_quantstudio = function(file){
   # remove empty line
   empty_linenum = grep("^$", lines)
   if (length(empty_linenum > 0)) lines = lines[-empty_linenum]
+
+  # meta information
+  meta_linenum = grep("^\\* .+$", lines)
+  meta_info = ifelse(length(meta_linenum) > 0, extract_meta(lines[meta_linenum]), NULL)
 
   # find the start line of different set
   set_linenum = grep("^\\[.+\\]$", lines)
@@ -36,14 +40,37 @@ read_quantstudio = function(file){
                           col_types = type)
   }
   names(raw) = set_name
+  raw$Meta = meta_info
   class(raw) = "QuantStudioRaw"
   return(raw)
+}
+
+extract_meta = function(meta_lines) {
+  meta_lines = gsub("^\\* ", "", meta_lines) |> trimws()
+  l = strsplit(meta_lines,"\\s+=\\s+")
+  name = sapply(l, `[[`, 1) |> lower_join()
+  value = sapply(l, `[[`, 2)
+  if (length(unique(name)) != length(value)) stop("Names of meta have different length to their values")
+  names(value) = name
+  return(value)
 }
 
 lower_join = function(x){
   require(stringr)
   tolower(x) %>%
-    stringr::str_replace("\\s", "_")
+    stringr::str_replace_all("\\s", "_")
+}
+
+# get run start tiem
+get_quantstudio_run_time = function(x){
+  meta = get_by_name(x, "Meta")
+  if ("experiment_run_start_time" %in% names(meta)) {
+    return(meta[["experiment_run_start_time"]] |> as.Date())
+  } else {
+    warning("Could not find run start time of this object.")
+    return(NULL)
+  }
+
 }
 
 #' Get melting curve from QuantStudio dataset
@@ -107,6 +134,6 @@ get_by_name = function(x, pattern){
 #' @docType methods
 #' @export
 print.QuantStudioRaw = function(object){
-            cat("An object of class 'QuantStudioDaw':\n")
+            cat("An object of class 'QuantStudioRaw':\n")
             cat("   Slots: ", paste0(names(object), collapse = ", "), ";\n", sep = "")
           }
