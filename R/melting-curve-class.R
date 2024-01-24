@@ -45,31 +45,46 @@ quantstudio2mc = function(x,
 }
 
 
-####### Accessor methods #######
+####### Accessory methods #######
 
 #' @export
 #' @rdname melting-curve
 setGeneric("getDate", function(object) standardGeneric("getDate"))
+
+#' @export
+#' @rdname melting-curve
 setMethod("getDate", "MeltingCurve", function(object) object@experiment_date)
 
 #' @export
 #' @rdname melting-curve
 setGeneric("getPlate", function(object) standardGeneric("getPlate"))
+
+#' @export
+#' @rdname melting-curve
 setMethod("getPlate", "MeltingCurve", function(object) object@plate)
 
 #' @export
 #' @rdname melting-curve
 setGeneric("getPrimer", function(object) standardGeneric("getPrimer"))
+
+#' @export
+#' @rdname melting-curve
 setMethod("getPrimer", "MeltingCurve", function(object) object@primer)
 
 #' @export
 #' @rdname melting-curve
 setGeneric("getData", function(object) standardGeneric("getData"))
+
+#' @export
+#' @rdname melting-curve
 setMethod("getData", "MeltingCurve", function(object) object@data)
 
 #' @export
 #' @rdname melting-curve
 setGeneric("transformData", function(object, ...) standardGeneric("transformData"))
+
+#' @export
+#' @rdname melting-curve
 setMethod("transformData", "MeltingCurve", function(object,
                                                     limit = tempRange(object),
                                                     step = 0.03,
@@ -86,6 +101,9 @@ setMethod("transformData", "MeltingCurve", function(object,
 #' @export
 #' @rdname melting-curve
 setGeneric("filterData", function(object, from = NULL, to = NULL, well_position = NULL, ...) standardGeneric("filterData"))
+
+#' @export
+#' @rdname melting-curve
 setMethod("filterData", "MeltingCurve", function(object, from, to, well_position) {
   mc_data = getData(object)
   if (!is.null(from)) mc_data = dplyr::filter(mc_data, .data$temperature >= from)
@@ -100,6 +118,9 @@ setMethod("filterData", "MeltingCurve", function(object, from, to, well_position
 #' @rdname melting-curve
 #' @method tempRange MeltingCurve
 setGeneric("tempRange", function(object, ...) standardGeneric("tempRange"))
+
+#' @export
+#' @rdname melting-curve
 setMethod("tempRange", "MeltingCurve", function(object, na.rm = TRUE) {
   range(getData(object) |> dplyr::pull("temperature"), na.rm = na.rm)
 })
@@ -147,7 +168,7 @@ mc2tbl = function(mc){
 plot_mc = function(mc, y = "derivative", show_tm = FALSE){
   if (!inherits(mc, "MeltingCurve")) stop("mc is not a \"MeltingCurve\" object")
   plate = getPlate(mc)
-  df = getData(mc) |>
-    dplyr::left_join(getPlate(mc), by = "well_position")
+  df = getData(mc)
+  if (!is.na(plate)) df = dplyr::left_join(df, plate, by = "well_position")
   plot_quantstudio_melting_curve(df, y = y, show_tm = show_tm)
 }

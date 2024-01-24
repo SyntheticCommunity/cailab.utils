@@ -85,8 +85,8 @@ mc_tbl_w
 
 ```{r}
 library(vegan)
-cca = cca(mc_tbl_w[,-1], meta2[,-1])
-autoplot(cca)
+pca = rda(mc_tbl_w |> select(starts_with("T")))
+summary(pca)
 ```
 
 ```{r}
