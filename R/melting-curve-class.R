@@ -3,8 +3,8 @@
 #' a S4 class for storing melting curve data
 #'
 #' @slot experiment_date experiment date
-#' @slot plate plate
-#' @slot sample sample table
+#' @slot plate plate setting
+#' @slot primer primer name
 #' @slot data curve data
 #' @name mc-class
 #' @rdname melting-curve
@@ -12,7 +12,7 @@ setClass("MeltingCurve",
          slots = list(
            experiment_date = "ANY",
            plate = "ANY",
-           sample = "ANY",
+           primer = "ANY",
            data = "ANY"
            )
 )
@@ -31,15 +31,15 @@ setClass("MeltingCurve",
 #' @rdname melting-curve
 quantstudio2mc = function(x,
                           experiment_date = get_quantstudio_run_time(x),
-                          plate = "NA",
-                          sample = "NA",
+                          plate = NA,
+                          primer = NA,
                           col_data = c("well_position","temperature","derivative")){
   if (!inherits(x, "QuantStudioRaw")) stop("x is not a valid QuantStudioRaw object")
   melting_curve = get_quantstudio_melting_curve(x)
   object = methods::new("MeltingCurve",
       experiment_date = experiment_date,
       plate = plate,
-      sample = sample,
+      primer = primer,
       data = melting_curve[, col_data])
   return(object)
 }
@@ -125,12 +125,29 @@ setMethod("show", c(object = "MeltingCurve"),
 #' @param x a MeltingCurve object
 #' @export
 #' @rdname melting-curve
-mc2tbl = function(x){
-  if (!inherits(x, "MeltingCurve")) stop("x is not a \"MeltingCurve\" object")
-  tbl = getData(x) |>
-    dplyr::mutate(date = getDate(x),
-                  plate = getPlate(x)) |>
-    tidyr::unite(well_position, tidyr::all_of(c("date","primer","plate","well_position")))
+mc2tbl = function(mc){
+  if (!inherits(mc, "MeltingCurve")) stop("mc is not a \"MeltingCurve\" object")
+  date = getDate(mc); primer = getPrimer(mc); plate = getPlate(mc);
+  tbl = getData(mc)
+  if (!is.na(date)) tbl = dplyr::mutate(tbl, date = date)
+  if (!is.na(primer)) tbl = dplyr::mutate(tbl, primer = primer)
+  if (!is.na(plate)) tbl = dplyr::left_join(tbl, plate, by = "well_position")
+    dplyr::left_join(, by = "well_position") |>
+    tidyr::unite(well_position, tidyr::any_of(c("date","primer","plate","well_position")))
   return(tbl)
 }
 
+
+#' Plot a MeltingCurve object
+#'
+#' @param x MeltingCurve object
+#'
+#' @return ggplot object
+#' @export
+plot_mc = function(mc, y = "derivative", show_tm = FALSE){
+  if (!inherits(mc, "MeltingCurve")) stop("mc is not a \"MeltingCurve\" object")
+  plate = getPlate(mc)
+  df = getData(mc) |>
+    dplyr::left_join(getPlate(mc), by = "well_position")
+  plot_quantstudio_melting_curve(df, y = y, show_tm = show_tm)
+}

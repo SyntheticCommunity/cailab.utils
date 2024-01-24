@@ -3,16 +3,20 @@
 
 #' Tibble to wider matrix-like format
 #'
-#' @param tbl a tibble storing melting curve data
+#' @param mc object
 #' @param column_names_from column names
 #' @param column_values_from column values
 #'
 #' @return a wider tibble
 #' @export
-mc_tbl2wider = function(tbl,
+mc_tbl2wider = function(mc,
                         column_names_from = "temperature",
                         column_values_from = "derivative") {
-  tidyr::pivot_wider(tbl, names_from = column_names_from, names_prefix = "T", values_from = column_values_from)
+  tbl = getData(mc) |>
+    tidyr::pivot_wider(names_from = column_names_from, names_prefix = "T", values_from = column_values_from)
+  plate = getPlate(mc)
+  if (is.data.frame(plate)) tbl = tbl |> dplyr::left_join(plate, by = "well_position")
+  return(tbl)
 }
 
 

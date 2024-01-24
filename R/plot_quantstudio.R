@@ -10,11 +10,12 @@
 #' @return a ggplot object
 #' @export
 plot_quantstudio_melting_curve = function(data,
-                                          y = c("fluorescence", "derivative"),
+                                          y = c("derivative","fluorescence"),
                                           show_tm = FALSE,
                                           tm_nums = 1){
   y = match.arg(y)
   if (show_tm) y = "derivative"
+  if (!y %in% colnames(data)) stop(paste("Column", y, "not found in data.")
   p = data %>%
     ggplot2::ggplot(ggplot2::aes(.data[["temperature"]],
                     .data[[y]],
@@ -23,11 +24,10 @@ plot_quantstudio_melting_curve = function(data,
   if (show_tm) {
     peak = mc_get_tm(data, npeaks = tm_nums)
     p = p +
-      ggplot2::geom_point(
-        ggplot2::aes(.data$peak_position,
-                     .data$peak_height,
+      ggplot2::geom_vline(
+        ggplot2::aes(xintercept = .data$peak_position,
                      color = .data$well_position),
-        shape = 21,
+        lty = "dashed",
         alpha = 0.8,
         data = peak,
         show.legend = FALSE) +
