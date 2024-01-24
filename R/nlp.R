@@ -11,13 +11,14 @@ baidu_access_token <- function(){
 
 #' Use Baidu Cloud word segmentation service
 #'
-#' @param text
+#' @param text text
 #' @param mode Using 0, the web content model, or 1 the Baidu query model.
 #'
-#' @return
+#' @return a structure data of class `baidu_segment`
 #' @export
 #'
-#' @examples  baidu_segment("高春辉是个好同志吗？")
+#' @examples
+#' # baidu_segment("张三是个好同志吗？")
 baidu_segment <- function(text, mode = 0){
   base_url <- "https://aip.baidubce.com/rpc/2.0/nlp/v1/depparser?"
   access_token <- baidu_access_token()$access_token
@@ -25,10 +26,10 @@ baidu_segment <- function(text, mode = 0){
   url <- paste0(url, "&access_token=", access_token)
   require(httr)
   d <- list(text = text, mode = mode)
-  response <- POST(url = url,
+  response <- httr::POST(url = url,
                    body = d,
                    encode = "json")
-  data <- content(response)
+  data <- httr::content(response)
   structure(data, class = "baidu_segment")
 }
 

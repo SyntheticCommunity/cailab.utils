@@ -1,4 +1,5 @@
-authorProdOverTime2 <- function (M, k = 10, graph = TRUE) {
+#' @import ggplot2
+authorProdOverTime2 <- function(M, k = 10, graph = TRUE) {
   # 修改 bibliometrix 的函数
   M$TC = as.numeric(M$TC)
   M$PY = as.numeric(M$PY)
@@ -13,7 +14,7 @@ authorProdOverTime2 <- function (M, k = 10, graph = TRUE) {
   list <- lapply(1:length(AU), function(i){
     ind = which(regexpr(AU[i], M$AU, fixed = TRUE) > -1)
     TCpY = M$TC[ind] / (Y - M$PY[ind] + 1)
-    tibble( Author = rep(AU[i], length(ind)),
+    dplyr::tibble( Author = rep(AU[i], length(ind)),
             year = M$PY[ind],
             TI = M$TI[ind],
             SO = M$SO[ind],
@@ -30,8 +31,8 @@ authorProdOverTime2 <- function (M, k = 10, graph = TRUE) {
     )
   df2 = as.data.frame(df2)
   df2$Author = factor(df2$Author, levels = AU[k:1])
-  g <- ggplot(df2, aes(year,Author)) +
-    geom_point(aes(alpha = TCpY, size = freq),
+  g <- ggplot(df2, aes(.data$year,.data$Author)) +
+    geom_point(aes(alpha = .data$TCpY, size = .data$freq),
                color = "dodgerblue4") +
     scale_size(range = c(2, 6)) +
     scale_alpha(range = c(0.3, 1)) +
@@ -42,7 +43,7 @@ authorProdOverTime2 <- function (M, k = 10, graph = TRUE) {
                                 "TC/Year")) +
     labs(title = "Top-Authors' Production over the Time") +
     geom_line(
-      aes(group = Author),
+      aes(group = .data$Author),
       size = 1,
       color = "firebrick",
       alpha = 0.3
@@ -59,10 +60,10 @@ authorProdOverTime2 <- function (M, k = 10, graph = TRUE) {
 
 }
 
-
+#' @export
 tableTag <- function (M, Tag = "CR", sep = ";") {
   if (Tag %in% c("AB", "TI")) {
-    M = termExtraction(M, Field = Tag, stemming = F, verbose = FALSE)
+    M = bibliometrix::termExtraction(M, Field = Tag, stemming = F, verbose = FALSE)
     i = dim(M)[2]
   }
   else {
@@ -80,22 +81,23 @@ tableTag <- function (M, Tag = "CR", sep = ";") {
 
 
 # 提取历史引证网络中的论文
+
+#' @export
 extract_from_hist_graph <- function(M=NULL, g=NULL){
-  require("stringr")
-  name <- V(g)$name
-  doi <- str_extract_all(name, "10\\.[0-9]+\\/\\S+")
+  name <- igraph::V(g)$name
+  doi <- stringr::str_extract_all(name, "10\\.[0-9]+\\/\\S+")
   doi <- unlist(doi)
-  M %>% filter(toupper(DI) %in% toupper(doi))
+  M %>% dplyr::filter(toupper(.data$DI) %in% toupper(doi))
 }
 
-# 输出部分内容
+#' @export
 DT_output <- function(M, caption = "",
-                      filename = fig_path(),
+                      filename = knitr::fig_path(),
                       column = c("TI","DI","TC")){
   columns <- colnames(M)
   if ("SR" %in% columns) rownames(M) <- M$SR
-  M$link <- permanent_link(type = "html",id=M$DI, title = M$TI, alt = "")
-  DT::datatable(M %>% select(link,TC),
+  M$link <- permanent_link(type = "html",id = M$DI, title = M$TI, alt = "")
+  DT::datatable(M %>% select(dplyr::all_of(c("link","TC"))),
                 colnames = c("Title","Cited times"),
                 escape = FALSE,
                 rownames = TRUE,
@@ -156,16 +158,14 @@ keywords_from <- function(..., list = NULL, name = "primary"){
 # 根据检索词对文献进行分类
 #' Tag record by regular expression search
 #'
-#' @param x
+#' @param x character
 #' @param name the name of new column
-#' @param pattern
-#' @param pattern.names
+#' @param pattern regex
+#' @param pattern.names pattern names
 #' @param sep default is ";"
 #'
-#' @return
+#' @return a table
 #' @export
-#'
-#' @examples
 tag_by_regex <- function(x, pattern, pattern.names = names(pattern), sep = ";"){
   require(stringr)
   nRecord <- length(x)
@@ -206,10 +206,10 @@ summarise_plot <- function(data,
   plot <- match.arg(plot)
   if (multi_choice) data <- data %>% separate_rows(question,sep = row_split)
   x <- data[[question]]
-  x <- str_wrap(x, width = 24, exdent = 4)
+  x <- stringr::str_wrap(x, width = 24, exdent = 4)
   if (plot == "pie") p <- ggpie(x, sort = FALSE) +
-    guides(fill = guide_legend(reverse = TRUE)) +
-    theme(legend.text = element_text(margin = margin(t=2,b=2)))
+    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE)) +
+    ggplot2::theme(legend.text = ggplot2::element_text(margin = margin(t = 2, b = 2)))
   if (plot == "bar") p <- hbarplot(x, show = "name", sort = FALSE)
   return(p)
 }
@@ -218,7 +218,7 @@ summarise_plot <- function(data,
 # 根据问题，获取数据子集（多个列）
 subset_question_data <- function(data, question){
   colname <- colnames(data)
-  idx <- which(str_detect(colname, question))
+  idx <- which(stringr::str_detect(colname, question))
   data[idx]
 }
 
@@ -230,11 +230,11 @@ plot_this_question <- function(data, question,
                                plot = c("auto","pie","bar"), ...){
   plot <- match.arg(plot)
   colname <- colnames(data)
-  idx <- which(str_detect(colname, question))
+  idx <- which(stringr::str_detect(colname, question))
   if (multi_choice == "auto"){
     multi_choice <- FALSE
     if (length(idx) > 2) multi_choice <- TRUE
-    if (any(str_detect(colname[idx], "多选"))) multi_choice <- TRUE
+    if (any(stringr::str_detect(colname[idx], "多选"))) multi_choice <- TRUE
   }
   if (multi_choice) {
     x <- unlist(data[idx]) %>% as.character()
@@ -251,7 +251,7 @@ plot_this_question <- function(data, question,
   }
   if (plot == "pie") p <- ggpie(x, ...)
   if (plot == "bar") p <- hbarplot(x, ...)
-  return(p + labs(x="",y="",fill=""))
+  return(p + ggplot2::labs(x = "", y = "", fill = ""))
 }
 
 
@@ -274,8 +274,8 @@ read_wos_tsv <- function(file){
 }
 
 # just a optimized ggplotly()
-plot.ly <- function (g, tooltip = c("text"), ...) {
-  require(plotly)
+#' @import plotly
+plot.ly <- function(g, tooltip = c("text"), ...) {
   ggplotly(g, tooltip = tooltip, ...) %>%
     config(displaylogo = FALSE,
            modeBarButtonsToRemove = c("sendDataToCloud", "pan2d",
@@ -285,9 +285,8 @@ plot.ly <- function (g, tooltip = c("text"), ...) {
 }
 
 # determine wheter it is part of China
-is.part_of_china <- function (x) {
-  require(stringr)
-  str_detect(x,
+is.part_of_china <- function(x) {
+  stringr::str_detect(x,
              pattern = stringr::regex("CHINA|TAIWAN|HONG KONG|MACAO",
                                       ignore_case = T))
 }
@@ -296,7 +295,7 @@ is.part_of_china <- function (x) {
 # only keep Article and Review in DT field
 simplify_document_type <- function(x){
   article_review <- regex("^Review|Article$", ignore_case = TRUE)
-  x[!str_detect(x, article_review)] <- "Others"
+  x[!stringr::str_detect(x, article_review)] <- "Others"
   return(x)
 }
 

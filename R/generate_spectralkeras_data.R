@@ -9,8 +9,8 @@ generate_spectralkeras_data = function(n = 1000, label_n = 10, from = 1000, to =
   colname = c("0", as.character(seq(from, to, by = step)))
   rowlab = sample(label, size = n, replace = TRUE)
   m = (to - from)/1 + 1
-  mat = matrix(data = rnorm(n = n * m), nrow = n)
+  mat = matrix(data = stats::rnorm(n = n * m), nrow = n)
   data = cbind(rowlab, as.data.frame(mat))
   colnames(data) = colname
-  as_tibble(data)
+  dplyr::as_tibble(data)
 }

@@ -17,7 +17,7 @@ bing_geocode <- function(address){
   base_url <- "http://dev.virtualearth.net/REST/v1/Locations?"
   api_key <- yaml::read_yaml("api-key.yaml")$bing_geo_api_key
   url <- paste0(base_url,"q=",address,"&key=",api_key)
-  url <- URLencode(enc2utf8(url))
+  url <- utils::URLencode(enc2utf8(url))
   data <- rjson::fromJSON(file = url)
   structure(data, class = "bingGeocode")
 }

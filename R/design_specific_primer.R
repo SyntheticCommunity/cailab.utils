@@ -15,7 +15,7 @@ design_specific_primer = function(fasta_file,
                                   minProductSize = 150,
                                   maxProductSize = 500,
                                   verbose = FALSE){
-  dbConn <- DBI::dbConnect(SQLite(), ":memory:")
+  dbConn <- DBI::dbConnect(RSQLite::SQLite(), ":memory:")
   on.exit(DBI::dbDisconnect(dbConn))
   seqs = Biostrings::readDNAStringSet(fasta_file)
   acc = names(seqs)

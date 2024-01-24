@@ -27,5 +27,5 @@ drop_inf <- function(data, ...) {
 
   # 过滤掉包含 Inf 的行
   data %>%
-    dplyr::filter_at(vars, dplyr::all_vars(!is.infinite(.)))
+    dplyr::filter_at(vars, dplyr::all_vars(!is.infinite(data)))
 }
