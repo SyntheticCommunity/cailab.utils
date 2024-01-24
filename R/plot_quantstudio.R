@@ -15,7 +15,7 @@ plot_quantstudio_melting_curve = function(data,
                                           tm_nums = 1){
   y = match.arg(y)
   if (show_tm) y = "derivative"
-  if (!y %in% colnames(data)) stop(paste("Column", y, "not found in data.")
+  if (!y %in% colnames(data)) stop(paste("Column", y, "not found in data."))
   p = data %>%
     ggplot2::ggplot(ggplot2::aes(.data[["temperature"]],
                     .data[[y]],
