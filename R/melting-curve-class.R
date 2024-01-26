@@ -193,7 +193,7 @@ mc_tbl2wider = function(mc,
   tbl = getData(mc) |>
     tidyr::pivot_wider(names_from = column_names_from, names_prefix = "T", values_from = column_values_from)
   plate = getPlate(mc)
-  if (is.data.frame(plate)) tbl = tbl |> dplyr::left_join(plate, by = "well_position")
+  if (!is.na(plate)) tbl = tbl |> dplyr::left_join(plate, by = "well_position")
   return(tbl)
 }
 
@@ -205,7 +205,7 @@ mc_tbl2wider = function(mc,
 #'
 #' @return PCA result
 #' @export
-mc_pca = function(object, scale){
+mc_pca = function(object, scale = FALSE){
   if (!inherits(object, "MeltingCurve")) stop("Object is not a MeltingCurve class object.")
   tbl = getData(object) |> mc_tbl2wider()
   mat = as.matrix(tbl |> dplyr::select(dplyr::starts_with("T")))

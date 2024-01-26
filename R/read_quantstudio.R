@@ -14,7 +14,7 @@ read_quantstudio = function(file){
 
   # meta information
   meta_linenum = grep("^\\* .+$", lines)
-  meta_info = ifelse(length(meta_linenum) > 0, extract_meta(lines[meta_linenum]), NULL)
+  meta_info = extract_meta(lines[meta_linenum])
 
   # find the start line of different set
   set_linenum = grep("^\\[.+\\]$", lines)
@@ -46,13 +46,14 @@ read_quantstudio = function(file){
 }
 
 extract_meta = function(meta_lines) {
+  if (length(meta_lines) < 1) return(NULL)
   meta_lines = gsub("^\\* ", "", meta_lines) |> trimws()
   l = strsplit(meta_lines,"\\s+=\\s+")
   name = sapply(l, `[[`, 1) |> lower_join()
   value = sapply(l, `[[`, 2)
   if (length(unique(name)) != length(value)) stop("Names of meta have different length to their values")
   names(value) = name
-  return(value)
+  return(as.list(value))
 }
 
 lower_join = function(x){
