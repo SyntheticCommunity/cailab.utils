@@ -1,4 +1,3 @@
-#' @import ggplot2
 authorProdOverTime2 <- function(M, k = 10, graph = TRUE) {
   # 修改 bibliometrix 的函数
   M$TC = as.numeric(M$TC)
@@ -31,19 +30,19 @@ authorProdOverTime2 <- function(M, k = 10, graph = TRUE) {
     )
   df2 = as.data.frame(df2)
   df2$Author = factor(df2$Author, levels = AU[k:1])
-  g <- ggplot(df2, aes(.data$year,.data$Author)) +
-    geom_point(aes(alpha = .data$TCpY, size = .data$freq),
+  g <- ggplot2::ggplot(df2, aes(.data$year,.data$Author)) +
+    ggplot2::geom_point(ggplot2::aes(alpha = .data$TCpY, size = .data$freq),
                color = "dodgerblue4") +
-    scale_size(range = c(2, 6)) +
-    scale_alpha(range = c(0.3, 1)) +
-    scale_x_continuous(breaks = function(x) seq(min(x),max(x),by = 2)) +
-    guides(size = guide_legend(order = 1,
+    ggplot2::scale_size(range = c(2, 6)) +
+    ggplot2::scale_alpha(range = c(0.3, 1)) +
+    ggplot2::scale_x_continuous(breaks = function(x) seq(min(x),max(x),by = 2)) +
+    ggplot2::guides(size = ggplot2::guide_legend(order = 1,
                                "N.Articles"),
-           alpha = guide_legend(order = 2,
+           alpha = ggplot2::guide_legend(order = 2,
                                 "TC/Year")) +
-    labs(title = "Top-Authors' Production over the Time") +
-    geom_line(
-      aes(group = .data$Author),
+    ggplot2::labs(title = "Top-Authors' Production over the Time") +
+    ggplot2::geom_line(
+      ggplot2::aes(group = .data$Author),
       size = 1,
       color = "firebrick",
       alpha = 0.3
@@ -156,6 +155,7 @@ keywords_from <- function(..., list = NULL, name = "primary"){
 }
 
 # 根据检索词对文献进行分类
+
 #' Tag record by regular expression search
 #'
 #' @param x character
@@ -167,7 +167,6 @@ keywords_from <- function(..., list = NULL, name = "primary"){
 #' @return a table
 #' @export
 tag_by_regex <- function(x, pattern, pattern.names = names(pattern), sep = ";"){
-  require(stringr)
   nRecord <- length(x)
   result <- vector("list", length = nRecord)
   nPattern <- length(pattern)
@@ -176,7 +175,7 @@ tag_by_regex <- function(x, pattern, pattern.names = names(pattern), sep = ";"){
     idx <- vector(length = nPattern)
     for (j in 1:nPattern){
       this_pattern <- pattern[[j]]
-      if (!is.na(this_record) & str_detect(this_record, this_pattern)) idx[[j]] <- TRUE
+      if (!is.na(this_record) & stringr::str_detect(this_record, this_pattern)) idx[[j]] <- TRUE
     }
     result[[i]] <- paste0(pattern.names[idx], collapse = sep)
   }
@@ -274,14 +273,13 @@ read_wos_tsv <- function(file){
 }
 
 # just a optimized ggplotly()
-#' @import plotly
 plot.ly <- function(g, tooltip = c("text"), ...) {
-  ggplotly(g, tooltip = tooltip, ...) %>%
-    config(displaylogo = FALSE,
+  plotly::ggplotly(g, tooltip = tooltip, ...) %>%
+    plotly::config(displaylogo = FALSE,
            modeBarButtonsToRemove = c("sendDataToCloud", "pan2d",
                                       "select2d", "lasso2d", "toggleSpikelines",
                                       "hoverClosestCartesian", "hoverCompareCartesian")) %>%
-    layout(xaxis = list(fixedrange = TRUE)) %>% layout(yaxis = list(fixedrange = TRUE))
+    plotly::layout(xaxis = list(fixedrange = TRUE)) %>% plotly::layout(yaxis = list(fixedrange = TRUE))
 }
 
 # determine wheter it is part of China

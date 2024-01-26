@@ -41,16 +41,14 @@ plot_384_single_concentration = function(data, species, trans = "log2", palette 
   p
 }
 
-#' @import ggplot2
 plot_384 = function(data = NULL){
   plate = plate384()
   if (!is.null(data)) plate = plate %>% dplyr::left_join(data)
-  ggplot(plate, aes(col, row)) +
-    scale_x_continuous(position = "top", breaks = 1:24, limits = c(0, 25), expand = expansion()) +
-    scale_y_reverse(label = function(x) LETTERS[x], breaks = 1:16, limits = c(17, 0), expand = expansion()) +
-    labs(x = "", y = "") +
-    theme_bw() +
-    theme(panel.grid.minor = element_blank())
+  ggplot2::ggplot(plate, aes(col, row)) +
+    ggplot2::scale_x_continuous(position = "top", breaks = 1:24, limits = c(0, 25), expand = ggplot2::expansion()) +
+    ggplot2::scale_y_reverse(label = function(x) LETTERS[x], breaks = 1:16, limits = c(17, 0), expand = ggplot2::expansion()) +
+    ggplot2::labs(x = "", y = "") +
+    ggplot2::theme(panel.grid.minor = ggplot2::element_blank())
 }
 
 plate384 = function(){

@@ -24,7 +24,6 @@ baidu_segment <- function(text, mode = 0){
   access_token <- baidu_access_token()$access_token
   url <- paste0(base_url, "&charset=UTF-8")
   url <- paste0(url, "&access_token=", access_token)
-  require(httr)
   d <- list(text = text, mode = mode)
   response <- httr::POST(url = url,
                    body = d,

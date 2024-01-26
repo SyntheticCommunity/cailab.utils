@@ -56,7 +56,6 @@ extract_meta = function(meta_lines) {
 }
 
 lower_join = function(x){
-  require(stringr)
   tolower(x) %>%
     stringr::str_replace_all("\\s", "_")
 }

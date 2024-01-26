@@ -50,25 +50,25 @@ simplified_network <- function(M, from = NULL, to = NULL, nNode = 30,
                            analysis = analysis,
                            network = network, sep = ";", ...)
 
-  if(is.na(field)) stop("must specify Field tag (ID, AU, etc).")
+  if (is.na(field)) stop("must specify Field tag (ID, AU, etc).")
 
   members <- unlist(strsplit(m[,field], split = ";")) %>%
     trimws() %>%
     table() %>%
     sort(decreasing = T) %>%
     tibble::enframe(name = "field",value = "nRecord")
-  if (!is.null(remove_keyword)){
+  if (!is.null(remove_keyword)) {
     members <- members %>%
       dplyr::filter(!stringr::str_detect(field, remove_keyword))
   }
   idx <- rownames(net_mat) %in% head(members$field,nNode)
   net_mat_s <- net_mat[idx,idx]
 
-  net <- igraph::graph.adjacency(net_mat_s,weighted = TRUE, mode = "undirected")
+  net <- igraph::graph.adjacency(net_mat_s, weighted = TRUE, mode = "undirected")
 
   g <- net
-  igraph::vertex.attributes(g)$size <- degree(g)
-  g <- igraph::delete.edges(g,E(g)[igraph::edge.attributes(g)$weight < edge_weight_cutoff])
+  igraph::vertex.attributes(g)$size <- igraph::degree(g)
+  g <- igraph::delete.edges(g,igraph::E(g)[igraph::edge.attributes(g)$weight < edge_weight_cutoff])
   g <- igraph::simplify(g)
   if (delete_isolate) g <- bibliometrix:::delete.isolates(g)
 
@@ -254,7 +254,6 @@ graph_set_node_color <- function(g, by = "year", decreasing = FALSE, scale01 = F
 
 
 
-#' @import igraph
 graph_subgraph <- function(g, by = "degree", slice = "PY", topN = 10, ratio = 0.1){
   if (!by %in% igraph::vertex_attr_names(g)) stop(by, " is not a graph attribute.\n")
   if (!slice %in% igraph::vertex_attr_names(g)) stop(slice, " is not a graph attribute.\n")

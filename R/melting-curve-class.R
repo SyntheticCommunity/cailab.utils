@@ -125,13 +125,17 @@ setMethod("tempRange", "MeltingCurve", function(object, na.rm = TRUE) {
   range(getData(object) |> dplyr::pull("temperature"), na.rm = na.rm)
 })
 
+######## Generic function #####
+
+#### show-method
+
 #' Print user-friendly information of object
 #'
 #' @param object a S4 class object
 #' @export
 #' @method show MeltingCurve
 #' @importFrom methods show slotNames slot
-#' @rdname melting-curve
+#' @rdname show-method
 setMethod("show", c(object = "MeltingCurve"),
           function(object){
             cat("An object of class 'MeltingCurve':\n")
@@ -197,12 +201,10 @@ mc_tbl2wider = function(mc,
 #' PCA analysis of MeltingCurve object
 #'
 #' @param object MeltingCurve object
-#' @inheritParams vegan::rda()
+#' @inheritParams vegan::rda
 #'
-#' @return
+#' @return PCA result
 #' @export
-#'
-#' @examples
 mc_pca = function(object, scale){
   if (!inherits(object, "MeltingCurve")) stop("Object is not a MeltingCurve class object.")
   tbl = getData(object) |> mc_tbl2wider()
@@ -214,8 +216,7 @@ mc_pca = function(object, scale){
 
 #' @title plot PCA result with extra data (Plate/Sample table)
 #'
-#' @param object MC
-#' @param scale whether scale data in PCA
+#' @param object pca result
 #' @param extra extra data table (join by 'well_position')
 #' @param color color mapping
 #' @param shape shape mapping
@@ -224,29 +225,27 @@ mc_pca = function(object, scale){
 #'
 #' @export
 #' @return ggplot
-#' @import ggplot2
-mc_pca_plot = function(object, scale = FALSE,
+mc_pca_plot = function(pca,
                       extra = NULL,
                       color = NULL,
                       shape = NULL,
                       show_temperature = FALSE,
                       temp_n = 3) {
-  pca = mc_pca(object, scale = scale)
   sites = .pca_site_score(pca, site_table = extra)
   species = .pca_species_score(pca, temp_n = temp_n)
 
-  p = ggplot()
+  p = ggplot2::ggplot()
   if (is.null(sample_table)) {
-    p = p + geom_point(data = sites, mapping = aes(x = .data$PC1, y = .data$PC2))
+    p = p + ggplot2::geom_point(data = sites, mapping = ggplot2::aes(x = .data$PC1, y = .data$PC2))
   } else {
-    p = p + geom_point(data = sites, mapping = aes(x = .data$PC1, y = .data$PC2, shape = .data[[shape]], color = .data[[color]]))
+    p = p + ggplot2::geom_point(data = sites, mapping = ggplot2::aes(x = .data$PC1, y = .data$PC2, shape = .data[[shape]], color = .data[[color]]))
   }
 
   if (show_temperature) {
-    p = p + geom_segment(data = species,
-                         mapping = aes(x = 0, y = 0, xend = .data$PC1, yend = .data$PC2),
-                         arrow = arrow(length = unit(0.1,"cm")), show.legend = F) +
-      ggrepel::geom_text_repel(mapping = aes(x = .data$PC1, y = .data$PC2, label = .data$temperature),
+    p = p + ggplot2::geom_segment(data = species,
+                         mapping = ggplot2::aes(x = 0, y = 0, xend = .data$PC1, yend = .data$PC2),
+                         arrow = ggplot2::arrow(length = unit(0.1,"cm")), show.legend = F) +
+      ggrepel::geom_text_repel(mapping = ggplot2::aes(x = .data$PC1, y = .data$PC2, label = .data$temperature),
                                max.overlaps = 30,
                                inherit.aes = FALSE,
                                data = species, show.legend = F)
