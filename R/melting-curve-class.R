@@ -31,8 +31,8 @@ setClass("MeltingCurve",
 #' @rdname melting-curve
 quantstudio2mc = function(x,
                           experiment_date = get_quantstudio_run_time(x),
-                          plate = NA,
-                          primer = NA,
+                          plate = NULL,
+                          primer = NULL,
                           col_data = c("well_position","temperature","derivative")){
   if (!inherits(x, "QuantStudioRaw")) stop("x is not a valid QuantStudioRaw object")
   melting_curve = get_quantstudio_melting_curve(x)
@@ -207,7 +207,7 @@ mc_tbl2wider = function(mc,
 #' @export
 mc_pca = function(object, scale = FALSE){
   if (!inherits(object, "MeltingCurve")) stop("Object is not a MeltingCurve class object.")
-  tbl = getData(object) |> mc_tbl2wider()
+  tbl = mc_tbl2wider(object)
   mat = as.matrix(tbl |> dplyr::select(dplyr::starts_with("T")))
   rownames(mat) = tbl$well_position
   pca = vegan::rda(mat, scale = scale)
@@ -229,22 +229,26 @@ mc_pca_plot = function(pca,
                       extra = NULL,
                       color = NULL,
                       shape = NULL,
+                      label = "well_position",
                       show_temperature = FALSE,
                       temp_n = 3) {
   sites = .pca_site_score(pca, site_table = extra)
   species = .pca_species_score(pca, temp_n = temp_n)
 
   p = ggplot2::ggplot()
-  if (is.null(sample_table)) {
-    p = p + ggplot2::geom_point(data = sites, mapping = ggplot2::aes(x = .data$PC1, y = .data$PC2))
-  } else {
-    p = p + ggplot2::geom_point(data = sites, mapping = ggplot2::aes(x = .data$PC1, y = .data$PC2, shape = .data[[shape]], color = .data[[color]]))
-  }
+  site_cols = colnames(sites)
+  sample_mapping = list(x = ggplot2::sym("PC1"), y = ggplot2::sym("PC2"))
+  if (!is.null(color) && color %in% site_cols) sample_mapping$color = ggplot2::sym(color)
+  if (!is.null(shape) && shape %in% site_cols) sample_mapping$shape = ggplot2::sym(shape)
+  if (!is.null(label) && label %in% site_cols) sample_mapping$label = ggplot2::sym(label)
+  sample_mapping = do.call(ggplot2::aes, sample_mapping)
+  p = p + ggplot2::geom_point(do.call(ggplot2::aes, sample_mapping[c("x","y","color","shape")]), sites) +
+    ggrepel::geom_text_repel(do.call(ggplot2::aes,sample_mapping[c("x","y","color","label")]), sites)
 
   if (show_temperature) {
     p = p + ggplot2::geom_segment(data = species,
                          mapping = ggplot2::aes(x = 0, y = 0, xend = .data$PC1, yend = .data$PC2),
-                         arrow = ggplot2::arrow(length = unit(0.1,"cm")), show.legend = F) +
+                         arrow = ggplot2::arrow(length = ggplot2::unit(0.1,"cm")), show.legend = F) +
       ggrepel::geom_text_repel(mapping = ggplot2::aes(x = .data$PC1, y = .data$PC2, label = .data$temperature),
                                max.overlaps = 30,
                                inherit.aes = FALSE,
