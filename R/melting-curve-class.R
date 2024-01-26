@@ -154,9 +154,9 @@ mc2tbl = function(mc){
   if (!inherits(mc, "MeltingCurve")) stop("mc is not a \"MeltingCurve\" object")
   date = getDate(mc); primer = getPrimer(mc); plate = getPlate(mc);
   tbl = getData(mc)
-  if (!is.na(date)) tbl = dplyr::mutate(tbl, date = date)
-  if (!is.na(primer)) tbl = dplyr::mutate(tbl, primer = primer)
-  if (!is.na(plate)) tbl = dplyr::left_join(tbl, plate, by = "well_position")
+  if (!is.null(date)) tbl = dplyr::mutate(tbl, date = date)
+  if (!is.null(primer)) tbl = dplyr::mutate(tbl, primer = primer)
+  if (!is.null(plate)) tbl = dplyr::left_join(tbl, plate, by = "well_position")
   tbl = tbl |>
     tidyr::unite(col = "well_position", tidyr::any_of(c("date","primer","plate","well_position")))
   return(tbl)
@@ -173,7 +173,7 @@ plot_mc = function(mc, y = "derivative", show_tm = FALSE){
   if (!inherits(mc, "MeltingCurve")) stop("mc is not a \"MeltingCurve\" object")
   plate = getPlate(mc)
   df = getData(mc)
-  if (!is.na(plate)) df = dplyr::left_join(df, plate, by = "well_position")
+  if (!is.null(plate)) df = dplyr::left_join(df, plate, by = "well_position")
   plot_quantstudio_melting_curve(df, y = y, show_tm = show_tm)
 }
 
@@ -193,7 +193,7 @@ mc_tbl2wider = function(mc,
   tbl = getData(mc) |>
     tidyr::pivot_wider(names_from = column_names_from, names_prefix = "T", values_from = column_values_from)
   plate = getPlate(mc)
-  if (!is.na(plate)) tbl = tbl |> dplyr::left_join(plate, by = "well_position")
+  if (!is.null(plate)) tbl = tbl |> dplyr::left_join(plate, by = "well_position")
   return(tbl)
 }
 
