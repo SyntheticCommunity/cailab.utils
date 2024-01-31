@@ -193,7 +193,8 @@ mc_tbl2wider = function(mc,
   tbl = getData(mc) |>
     tidyr::pivot_wider(names_from = column_names_from, names_prefix = "T", values_from = column_values_from)
   plate = getPlate(mc)
-  if (!is.null(plate)) tbl = tbl |> dplyr::left_join(plate, by = "well_position")
+  if (!is.null(plate)) tbl = tbl |> dplyr::left_join(plate, by = "well_position") |>
+    dplyr::select(!dplyr::starts_with("T"), dplyr::starts_with("T")) # sort columns
   return(tbl)
 }
 
