@@ -1,7 +1,7 @@
 Package: cailab.utils
 Type: Package
 Title: Collection of data analysis utilities in Cai Lab @ HZAU
-Version: 0.3.2
+Version: 0.3.3
 Author: c(
   person("Chun-Hui","Gao",email="gaospecial@gmail.com",role=c("aut","cre"), comment=c(ORCID = "0000-0002-1445-7939"))
   )
