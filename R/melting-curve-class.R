@@ -243,7 +243,7 @@ mc_pca_plot = function(pca,
   if (!is.null(shape) && shape %in% site_cols) sample_mapping$shape = ggplot2::sym(shape)
   if (!is.null(label) && label %in% site_cols) sample_mapping$label = ggplot2::sym(label)
   sample_mapping = do.call(ggplot2::aes, sample_mapping)
-  p = p + ggplot2::geom_point(do.call(ggplot2::aes,sample_mapping[c("x","y","color","shape")]), sites) +
+  p = p + ggplot2::geom_point(do.call(ggplot2::aes, sample_mapping[c("x","y","color","shape")]), sites) +
     ggrepel::geom_text_repel(do.call(ggplot2::aes,sample_mapping[c("x","y","color","label")]), sites)
 
   if (show_temperature) {
