@@ -192,9 +192,13 @@ mc_tbl2wider = function(mc,
                         column_values_from = "derivative") {
   tbl = getData(mc) |>
     tidyr::pivot_wider(names_from = column_names_from, names_prefix = "T", values_from = column_values_from)
-  plate = getPlate(mc)
-  if (!is.null(plate)) tbl = tbl |> dplyr::left_join(plate, by = "well_position") |>
-    dplyr::select(!dplyr::starts_with("T"), dplyr::starts_with("T")) # sort columns
+  plate = getPlate(mc); date = getDate(mc)
+  if (!is.null(plate)) {
+    tbl = tbl |>
+        dplyr::left_join(plate, by = "well_position") |>
+        dplyr::select(!dplyr::starts_with("T"), dplyr::starts_with("T")) # sort columns
+    if (!is.null(date)) tbl = dplyr::mutate(tbl, experiment_date = date, .before = 1)
+  }
   return(tbl)
 }
 
