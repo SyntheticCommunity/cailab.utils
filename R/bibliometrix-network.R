@@ -1,9 +1,7 @@
-## 进行（文献）网络分析的函数
+## Functions for biobliometrix analays
 
 
-## 简化网络
-## 限制 node 数目和edge.weight
-
+## Simplifying Networks
 
 #' Construct Networks of Different Tags
 #'
@@ -17,6 +15,8 @@
 #' @param field data column for network construction
 #' @param remove_keyword regex used to filter data
 #' @param ... pass to `biblio_network()`
+#' @param delete_isolate TRUE
+#' @param graph whether return graph
 #'
 #' @return visNetwork object
 #' @export
@@ -45,7 +45,7 @@ simplified_network <- function(M, from = NULL, to = NULL, nNode = 30,
   if (is.null(to)) to <- PY_to
   if (from > to) stop(paste0("from is bigger than to."))
 
-  m <- M %>% dplyr::filter(PY >= from, PY <= to)
+  m <- M %>% dplyr::filter(.data$PY >= from, .data$PY <= to)
   net_mat <- bibliometrix::biblioNetwork(m,
                            analysis = analysis,
                            network = network, sep = ";", ...)
@@ -61,7 +61,7 @@ simplified_network <- function(M, from = NULL, to = NULL, nNode = 30,
     members <- members %>%
       dplyr::filter(!stringr::str_detect(field, remove_keyword))
   }
-  idx <- rownames(net_mat) %in% head(members$field,nNode)
+  idx <- rownames(net_mat) %in% utils::head(members$field,nNode)
   net_mat_s <- net_mat[idx,idx]
 
   net <- igraph::graph.adjacency(net_mat_s, weighted = TRUE, mode = "undirected")
@@ -72,9 +72,9 @@ simplified_network <- function(M, from = NULL, to = NULL, nNode = 30,
   g <- igraph::simplify(g)
   if (delete_isolate) g <- bibliometrix:::delete.isolates(g)
 
-  if(graph == TRUE) return(g)
+  if (graph == TRUE) return(g)
 
-  # 聚类结果
+  # cluster result
   member <- igraph::membership(igraph::cluster_louvain(g)) %>%
     tibble::enframe(name = "id", value = "cluster")
   color <-  grDevices::colorRampPalette(RColorBrewer::brewer.pal(8,"Paired"))(length(unique(member$cluster)))
@@ -86,7 +86,7 @@ simplified_network <- function(M, from = NULL, to = NULL, nNode = 30,
     dplyr::left_join(igraph::degree(g) %>% tibble::enframe(name = "id")) %>%
     dplyr::left_join(member)
   visData$edges$value <- visData$edges$weight
-  visNetwork::visNetwork(visData$nodes, visData$edges,physics=FALSE) %>%
+  visNetwork::visNetwork(visData$nodes, visData$edges, physics = FALSE) %>%
     visNetwork::visLayout(randomSeed = 20200721) %>%
     visNetwork::visOptions(manipulation = FALSE,
                highlightNearest = list(enabled = TRUE, degree = 1, hover = TRUE))
@@ -178,7 +178,7 @@ keyword_network <- function(M,
 }
 
 
-## 网络相关的函数
+## Network functions
 
 range01 <- function(x){(x-min(x))/(max(x)-min(x))}
 
@@ -192,49 +192,48 @@ range01 <- function(x){(x-min(x))/(max(x)-min(x))}
 #'
 #' @name graph_add_node
 graph_add_node_pagerank <- function(g){
-  V(g)$pagerank <- page.rank(g)[["vector"]]
+  igraph::V(g)$pagerank <- igraph::page.rank(g)[["vector"]]
   return(g)
 }
 
 #' @export
 #' @rdname graph_add_node
 graph_add_node_degree <- function(g){
-  V(g)$degree <- degree(g)
+  igraph::V(g)$degree <- igraph::degree(g)
   return(g)
 }
 
-#' 添加节点属性
+# add node attributes
 graph_add_node_attr <- function(g, data, id = "id", cols = colnames(data)){
-  # 依据 id 的对应关系将 data 中的属性加入到graph中，
-  # id 是 data 中 node id 的列名, cols 是 data 中用到的列名
-  # ToDO: 跳过已有的属性还是覆盖？
-  g.id <- names(V(g))
+  # Add attributes from data to the graph based on the mapping of ids.
+  # id refers to the column name of node id in data, cols refer to the column names used in data.
+  # ToDo: Should existing attributes be skipped or overwritten?
+  g.id <- names(igraph::V(g))
   data <- as.data.frame(data)
   rownames(data) <- data[,id]
   cols <- cols[!cols %in% id]
   for (i in 1:length(cols)){
-    vertex_attr(g, name =  cols[[i]]) <- data[g.id, cols[[i]]]
+    igraph::vertex_attr(g, name =  cols[[i]]) <- data[g.id, cols[[i]]]
   }
   return(g)
 }
 
 
-#' set node size
+# set node size
 graph_set_node_size <- function(g, by = "degree", scale01 = TRUE, max_size = 10){
-  value <- vertex_attr(g, name = by)
-  if (isTRUE(scale01)){
+  value <- igraph::vertex_attr(g, name = by)
+  if (isTRUE(scale01)) {
     value <- range01(value)
   }
   size <- (value * max_size) + 1
-  V(g)$size <- size
+  igraph::V(g)$size <- size
   return(g)
 }
 
 
 
+#  set node color by year (default)
 graph_set_node_color <- function(g, by = "year", decreasing = FALSE, scale01 = FALSE, palette_name = "YlOrRd"){
-  ## 为 graph 设置节点颜色
-  ## 默认按年份着色，或者其它 node 属性着色
   value <- igraph::vertex_attr(g, name = by)
   if (isTRUE(scale01)) {
     value <- range01(value)
@@ -259,7 +258,7 @@ graph_subgraph <- function(g, by = "degree", slice = "PY", topN = 10, ratio = 0.
   if (!slice %in% igraph::vertex_attr_names(g)) stop(slice, " is not a graph attribute.\n")
   data <- visNetwork::toVisNetworkData(g)
   nodes <- data$nodes %>% dplyr::group_by(.data$PY) %>%
-    dplyr::arrange(dplyr::desc(degree)) %>%
+    dplyr::arrange(dplyr::desc(.data[[by]])) %>%
     dplyr::filter(dplyr::row_number() <= topN)
   igraph::induced.subgraph(g, vids = nodes$id)
 }

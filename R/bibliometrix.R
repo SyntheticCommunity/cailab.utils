@@ -1,5 +1,5 @@
 authorProdOverTime2 <- function(M, k = 10, graph = TRUE) {
-  # 修改 bibliometrix 的函数
+  # edit bibliometrix function
   M$TC = as.numeric(M$TC)
   M$PY = as.numeric(M$PY)
   AU = names(tableTag(M, "AU"))
@@ -59,8 +59,14 @@ authorProdOverTime2 <- function(M, k = 10, graph = TRUE) {
 
 }
 
+#' @title Count items in characters
+#' @md
+#' @param M a bibliometerix data.frame
+#' @param Tag name of the tag
+#' @param sep separator used to link multiple tags in `M`
+#'
 #' @export
-tableTag <- function (M, Tag = "CR", sep = ";") {
+tableTag <- function(M, Tag = "CR", sep = ";") {
   if (Tag %in% c("AB", "TI")) {
     M = bibliometrix::termExtraction(M, Field = Tag, stemming = F, verbose = FALSE)
     i = dim(M)[2]
@@ -79,8 +85,12 @@ tableTag <- function (M, Tag = "CR", sep = ";") {
 }
 
 
-# 提取历史引证网络中的论文
 
+#' @title Filter data.frame by graph nodes
+#'
+#' @param M a data.frame
+#' @param g a igraph object
+#'
 #' @export
 extract_from_hist_graph <- function(M=NULL, g=NULL){
   name <- igraph::V(g)$name
@@ -89,6 +99,13 @@ extract_from_hist_graph <- function(M=NULL, g=NULL){
   M %>% dplyr::filter(toupper(.data$DI) %in% toupper(doi))
 }
 
+#' @title Use `DT` to output a tibble
+#'
+#' @param M a data.frame
+#' @param caption table caption
+#' @param filename download file of table
+#' @param column columns to show in M
+#'
 #' @export
 DT_output <- function(M, caption = "",
                       filename = knitr::fig_path(),
@@ -104,47 +121,43 @@ DT_output <- function(M, caption = "",
                 width = "95%",
                 caption = caption,
                 extensions = c("Buttons","FixedColumns"),
-                options=list(dom = 'Bfrtip',
+                options = list(dom = 'Bfrtip',
                              scrollX = TRUE,
                              fixedColumns = TRUE,
                              pageLength = 10,
-                             buttons=list(
+                             buttons = list(
                                'pageLength',
-                               list(extend='copy'),
-                               list(extend="excel",
-                                    filename=filename,
-                                    header=TRUE,
-                                    title="")
+                               list(extend = 'copy'),
+                               list(extend = "excel",
+                                    filename = filename,
+                                    header = TRUE,
+                                    title = "")
                              ),
-                             columnDefs=list(
-                               list(width="80%",targets=1),
-                               list(width="10%",targets="_all")
+                             columnDefs = list(
+                               list(width = "80%",targets = 1),
+                               list(width = "10%",targets = "_all")
                              ),
-                             lengthMenu=list(c(10,20,50,100,200,-1),
+                             lengthMenu = list(c(10,20,50,100,200,-1),
                                              c("10","20","50","100","200","All")),
-                             autoWidth=TRUE)) %>%
-    DT::formatStyle(fontSize="9pt",columns = 0:4)
+                             autoWidth = TRUE)) %>%
+    DT::formatStyle(fontSize = "9pt",columns = 0:4)
 }
 
 permanent_link <- function(base_url="https://doi.org/",
                            type=c("markdown","html"),
-                           id=NULL,title=NULL,alt=NULL){
+                           id=NULL, title=NULL, alt=NULL){
   type <- match.arg(type)
   if (type == "markdown") s <- paste0("[",title,"](",base_url,id," \"",alt,"\")")
   if (type == "html") s <- paste0('<a href="',base_url,id,'" alt="',alt,'">',title,'</a>')
   return(s)
 }
 
-# 在指定项中查找
-grep_in_field <- function(M, pattern, Field = "C1"){
-
-}
 
 
 # content analysis functions
 
 
-# 整合多个关键词为一个关键词
+# build regex with character vector
 keywords_from <- function(..., list = NULL, name = "primary"){
   keyword_list <- list(...)
   if (!is.null(list)) keyword_list <- c(keyword_list, list)
@@ -154,12 +167,11 @@ keywords_from <- function(..., list = NULL, name = "primary"){
   paste0(unlist(result), collapse = "|")
 }
 
-# 根据检索词对文献进行分类
+# Group articles by regex
 
 #' Tag record by regular expression search
 #'
 #' @param x character
-#' @param name the name of new column
 #' @param pattern regex
 #' @param pattern.names pattern names
 #' @param sep default is ";"
@@ -170,10 +182,10 @@ tag_by_regex <- function(x, pattern, pattern.names = names(pattern), sep = ";"){
   nRecord <- length(x)
   result <- vector("list", length = nRecord)
   nPattern <- length(pattern)
-  for (i in 1:nRecord){
+  for (i in 1:nRecord) {
     this_record <- x[[i]]
     idx <- vector(length = nPattern)
-    for (j in 1:nPattern){
+    for (j in 1:nPattern) {
       this_pattern <- pattern[[j]]
       if (!is.na(this_record) & stringr::str_detect(this_record, this_pattern)) idx[[j]] <- TRUE
     }
@@ -183,11 +195,11 @@ tag_by_regex <- function(x, pattern, pattern.names = names(pattern), sep = ";"){
 }
 
 
-# 将排在后面的项目合并成 others
+# fct_other()
 shrink_lvl <- function(x, sort = TRUE, keep = 9, other = "Other"){
   if (is.factor(x)) x <- as.character(x)
   lvl <- names(sort(table(x), decreasing = TRUE))
-  lvl_new <- head(lvl, n = keep)
+  lvl_new <- utils::head(lvl, n = keep)
   ret <- rep(other, times = length(x))
   idx <- x %in% lvl_new
   ret[idx] <- x[idx]
@@ -195,45 +207,42 @@ shrink_lvl <- function(x, sort = TRUE, keep = 9, other = "Other"){
   return(ret)
 }
 
-# 对问卷中的选择题进行可视化
-# 适用于问卷星的导出数据
+# wenjuanxing
 summarise_plot <- function(data,
                            question = "Q1",
                            plot = c("pie","bar"),
                            multi_choice = FALSE,
                            row_split = "┋"  ){
   plot <- match.arg(plot)
-  if (multi_choice) data <- data %>% separate_rows(question,sep = row_split)
+  if (multi_choice) data <- data %>% tidyr::separate_rows(question,sep = row_split)
   x <- data[[question]]
   x <- stringr::str_wrap(x, width = 24, exdent = 4)
   if (plot == "pie") p <- ggpie(x, sort = FALSE) +
     ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE)) +
-    ggplot2::theme(legend.text = ggplot2::element_text(margin = margin(t = 2, b = 2)))
+    ggplot2::theme(legend.text = ggplot2::element_text(margin = ggplot2::margin(t = 2, b = 2)))
   if (plot == "bar") p <- hbarplot(x, show = "name", sort = FALSE)
   return(p)
 }
 
 
-# 根据问题，获取数据子集（多个列）
+
 subset_question_data <- function(data, question){
   colname <- colnames(data)
   idx <- which(stringr::str_detect(colname, question))
   data[idx]
 }
 
-# 搜索问题，根据问题的类型自动选择绘制饼图或条形图
-# (如果是单选题且选项数目＜3，则绘制饼图；否则为柱状图)
-# 适用于蜂鸟问卷的导出数据
+# plot result by pie chart or bar plot
 plot_this_question <- function(data, question,
                                multi_choice = "auto",
                                plot = c("auto","pie","bar"), ...){
   plot <- match.arg(plot)
   colname <- colnames(data)
   idx <- which(stringr::str_detect(colname, question))
-  if (multi_choice == "auto"){
+  if (multi_choice == "auto") {
     multi_choice <- FALSE
     if (length(idx) > 2) multi_choice <- TRUE
-    if (any(stringr::str_detect(colname[idx], "多选"))) multi_choice <- TRUE
+    if (any(stringr::str_detect(colname[idx], "\\u591a\\u9009"))) multi_choice <- TRUE
   }
   if (multi_choice) {
     x <- unlist(data[idx]) %>% as.character()
@@ -241,7 +250,7 @@ plot_this_question <- function(data, question,
     x <- data[[idx[[1]]]]
   }
 
-  if (plot == "auto"){
+  if (plot == "auto") {
     if (multi_choice | length(unique(x)) > 3) {
       plot <- "bar"
     } else {
@@ -254,18 +263,17 @@ plot_this_question <- function(data, question,
 }
 
 
-# 搜索问题，获得问题题干
-# 适用于蜂鸟问卷的导出数据
+# get question name, suitable to fengniao wenjuan
 get_question_name <- function(data, question){
   colname <- colnames(data)
-  idx <- which(str_detect(colname, question))
-  name <- str_extract(colname[idx][[1]], "([^\\.]+\\？)")
+  idx <- which(stringr::str_detect(colname, question))
+  name <- stringr::str_extract(colname[idx][[1]], "([^\\.]+\\？)")
   return(name)
 }
 
 # read WoS export analysis summary
 read_wos_tsv <- function(file){
-  data <- read.delim(file = file, header = TRUE, comment.char = "(", encoding = "UTF-8")
+  data <- utils::read.delim(file = file, header = TRUE, comment.char = "(", encoding = "UTF-8")
   colnames <- colnames(data)
   field <- colnames[[1]]
   colnames(data) <- c("Group","Record","Percent")
@@ -292,7 +300,7 @@ is.part_of_china <- function(x) {
 
 # only keep Article and Review in DT field
 simplify_document_type <- function(x){
-  article_review <- regex("^Review|Article$", ignore_case = TRUE)
+  article_review <- stringr::regex("^Review|Article$", ignore_case = TRUE)
   x[!stringr::str_detect(x, article_review)] <- "Others"
   return(x)
 }

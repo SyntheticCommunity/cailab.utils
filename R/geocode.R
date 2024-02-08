@@ -27,7 +27,7 @@ google_geocode <- function(address){
   base_url <- "https://maps.googleapis.com/maps/api/geocode/json?"
   api_key <- yaml::read_yaml("api-key.yaml")$google_geo_api_key
   url <- paste0(base_url,"address=",address,"&key=",api_key)
-  url <- URLencode(enc2utf8(url))
+  url <- utils::URLencode(enc2utf8(url))
   data <- rjson::fromJSON(file = url)
   structure(data, class="googleGeocode")
 }

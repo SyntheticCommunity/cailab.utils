@@ -24,7 +24,7 @@ hbarplot <- function(d, n=NULL, show = c("rank","name"), sort = TRUE, decreasing
     ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0,.02))) +
     ggplot2::geom_text(ggplot2::aes(y = .data$value - v_label), size = 3,
               vjust = 0.3, hjust = 1, data = function(d) d[d$value > v, ], color = "white", fontface = "bold") +
-    ggplot2::geom_text(ggplot2::aes(y = value + v_label), size = 3,
+    ggplot2::geom_text(ggplot2::aes(y = .data$value + v_label), size = 3,
               vjust = 0.5, hjust = 0, data = function(d) d[d$value <= v, ]) +
     ggplot2::coord_flip() +
     ggplot2::theme(axis.text.y = ggplot2::element_text(face = "bold",
@@ -32,6 +32,12 @@ hbarplot <- function(d, n=NULL, show = c("rank","name"), sort = TRUE, decreasing
 }
 
 #' plot pie chart for table or vector
+#'
+#' @param x a character vector
+#' @param sort default is TRUE
+#' @param decreasing default is FALSE
+#'
+#' @export
 ggpie <- function(x, sort = TRUE, decreasing = FALSE){
   if (is.factor(x)) x <- as.character(x)
   if (is.vector(x)) x <- table(x)
@@ -59,12 +65,13 @@ ggpie <- function(x, sort = TRUE, decreasing = FALSE){
 
 #' tableTag downstream plot
 #'
-#' @param M bibliometrix dataframe
-#' @param Tag passed to tableTag()
+#' @param M a bibliometrix data.frame
+#' @param Tag passed to `tableTag()`
 #' @param n top n
 #'
 #' @return a ggplot object
 #' @export
+#' @md
 #'
 #' @examples
 #' library("bibliometrixData")
@@ -73,19 +80,24 @@ ggpie <- function(x, sort = TRUE, decreasing = FALSE){
 tableTag_barplot <- function(M, Tag = "AU", n = 30){
   d <- tableTag(M,Tag = Tag) %>%
     tibble::enframe() %>%
-    dplyr::filter(name != "NA") %>%
+    dplyr::filter(.data$name != "NA") %>%
     dplyr::mutate(name = forcats::as_factor(as.character(.data$name))) %>%
     utils::head(n)
   v <- max(d$value)/2
-  title <- paste0("文章数量Top",n)
+  title <- paste0("Top",n)
   hbarplot(d) +
     ggplot2::labs(x = NULL, y = "No. of record", title = title)
 }
 
-# 对一批论文进行四维分析，显示国家、机构、人员和期刊
+#' Show four tags of a bibliometrix data.frame
+#'
+#' @param M a bibliometrix data.frame
+#' @param tags default is `c("AU","AU_CO_NR","AU_UN_NR","J9")`
+#' @export
+#' @md
 four_dimension_barplot <- function(M, tags = c("AU","AU_CO_NR","AU_UN_NR","J9")){
   plots <- lapply(tags, function(x){
-    tableTag_barplot(M, Tag = x, n = 10) + labs(title = "")
+    tableTag_barplot(M, Tag = x, n = 10) + ggplot2::labs(title = "")
   })
   cowplot::plot_grid(plotlist = plots, labels = "AUTO")
 }
