@@ -1,13 +1,20 @@
 #### Class defination ####
 
-#' a S4 class for storing melting curve data
+#' @title Class for storing melting curve data
+#'
+#' @description
+#'
+#' * `MeltingCurve` is a S4 class with several slots.
+#' * Use `quantstudio2mc()` to convert a quantstudio result to `MeltingCurve` object.
 #'
 #' @slot experiment_date experiment date
 #' @slot plate plate setting
 #' @slot primer primer name
 #' @slot data curve data
-#' @name mc-class
-#' @rdname melting-curve
+#' @name MeltingCurve-Class
+#' @rdname melting-curve-class
+#' @docType class
+#' @md
 setClass("MeltingCurve",
          slots = list(
            experiment_date = "ANY",
@@ -17,7 +24,8 @@ setClass("MeltingCurve",
            )
 )
 
-#' Convert a quantstudio result to MeltingCurve object
+#' @name MeltingCurve-Class
+#' @rdname melting-curve-class
 #'
 #' @param x a quantstudio result file or object
 #' @param experiment_date default is `Sys.Date()`
@@ -28,7 +36,6 @@ setClass("MeltingCurve",
 #' @return a MeltingCurve object
 #' @export
 #' @md
-#' @rdname melting-curve
 quantstudio2mc = function(x,
                           experiment_date = get_quantstudio_run_time(x),
                           plate = NULL,
@@ -47,44 +54,66 @@ quantstudio2mc = function(x,
 
 ####### Accessory methods #######
 
+#' @title Accessory Methods for `MeltingCurve`
+#'
+#' @description
+#' Multiple generic methods for `MeltingCurve` object.
+#'
+#' @param object A MeltingCurve class object
+#' @param limit start and stop point in transformation, for example: `c(70, 80)`
+#' @param step increase step in transformation
+#' @param method method used in transformation
+#' @param from start point in filter
+#' @param to stop point in filter
+#' @param well_position specifying well position in filter
+#' @param na.rm whether remove NA in calculating temperature range
+#' @param ... pass to subsequent functions
+#'
+#' @md
+#' @name MeltingCurve-Method
+#' @rdname melting-curve-class-method
+NULL
+
+
+
+#' @rdname melting-curve-class-method
 #' @export
-#' @rdname melting-curve
 setGeneric("getDate", function(object) standardGeneric("getDate"))
 
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setMethod("getDate", "MeltingCurve", function(object) object@experiment_date)
 
+#' @rdname melting-curve-class-method
 #' @export
-#' @rdname melting-curve
 setGeneric("getPlate", function(object) standardGeneric("getPlate"))
 
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setMethod("getPlate", "MeltingCurve", function(object) object@plate)
 
+#' @rdname melting-curve-class-method
 #' @export
-#' @rdname melting-curve
 setGeneric("getPrimer", function(object) standardGeneric("getPrimer"))
 
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setMethod("getPrimer", "MeltingCurve", function(object) object@primer)
 
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setGeneric("getData", function(object) standardGeneric("getData"))
 
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setMethod("getData", "MeltingCurve", function(object) object@data)
 
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setGeneric("transformData", function(object, ...) standardGeneric("transformData"))
 
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setMethod("transformData", "MeltingCurve", function(object,
                                                     limit = tempRange(object),
                                                     step = 0.03,
@@ -99,11 +128,11 @@ setMethod("transformData", "MeltingCurve", function(object,
 #' Filter data by temperature and well positions
 #'
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setGeneric("filterData", function(object, from = NULL, to = NULL, well_position = NULL, ...) standardGeneric("filterData"))
 
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setMethod("filterData", "MeltingCurve", function(object, from, to, well_position) {
   mc_data = getData(object)
   if (!is.null(from)) mc_data = dplyr::filter(mc_data, .data$temperature >= from)
@@ -114,13 +143,14 @@ setMethod("filterData", "MeltingCurve", function(object, from, to, well_position
 })
 
 #' get temperature range
+#'
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 #' @method tempRange MeltingCurve
 setGeneric("tempRange", function(object, ...) standardGeneric("tempRange"))
 
 #' @export
-#' @rdname melting-curve
+#' @rdname melting-curve-class-method
 setMethod("tempRange", "MeltingCurve", function(object, na.rm = TRUE) {
   range(getData(object) |> dplyr::pull("temperature"), na.rm = na.rm)
 })
@@ -135,7 +165,7 @@ setMethod("tempRange", "MeltingCurve", function(object, na.rm = TRUE) {
 #' @export
 #' @method show MeltingCurve
 #' @importFrom methods show slotNames slot
-#' @rdname show-method
+#' @rdname melting-curve-class-method
 setMethod("show", c(object = "MeltingCurve"),
           function(object){
             cat("An object of class 'MeltingCurve':\n")
@@ -147,7 +177,7 @@ setMethod("show", c(object = "MeltingCurve"),
 
 #' @title Transform a MeltingCurve object to tibble
 #'
-#' @param x a MeltingCurve object
+#' @param mc a MeltingCurve object
 #' @export
 #' @rdname melting-curve
 mc2tbl = function(mc){
@@ -165,7 +195,9 @@ mc2tbl = function(mc){
 
 #' Plot a MeltingCurve object
 #'
-#' @param x MeltingCurve object
+#' @param mc MeltingCurve object
+#' @param y y axis mapping
+#' @param show_tm whether show TM value in melting curve plot
 #'
 #' @return ggplot object
 #' @export
@@ -221,10 +253,11 @@ mc_pca = function(object, scale = FALSE){
 
 #' @title plot PCA result with extra data (Plate/Sample table)
 #'
-#' @param object pca result
+#' @param pca pca result
 #' @param extra extra data table (join by 'well_position')
 #' @param color color mapping
 #' @param shape shape mapping
+#' @param label label by 'well_position' by default
 #' @param show_temperature show temperature arrow
 #' @param temp_n limit for temperature arrows
 #'

@@ -35,7 +35,7 @@ sinc_interpolation <- function(measurements, interpolation_times) {
 }
 
 sinc_interp1 = function(x, measurements, xi){
-  
+
 }
 
 ## This is a slightly different, and less intuitive version of the interpolation function, which ...
@@ -49,31 +49,31 @@ sinc_interp1 = function(x, measurements, xi){
 ## should be calculated. For example, if the interval between these points is 0.5, one value is ...
 ## interpolated between each measurement.
 fast_sinc_interpolation <- function(measurements, interpolation_times) {
-  
+
   n_input <- length(measurements) # Number of measurements
   n_input_even <- 2^(ceiling(log2(n_input))) # Next number that is a power of 2
   resolution <- 1/interpolation_times %% 1 # Pick out the interpolation factors for the desired interpolation times
-  
+
   # Add zeros to the data to make the sample size a power of 2
   if(n_input != n_input_even){
-    measurements <- c(measurements, rep(0, n_input_even - n_input)) 
+    measurements <- c(measurements, rep(0, n_input_even - n_input))
   }
-  
+
   # If interpolation should take place, run this.
   if(is.finite(min(resolution)) == T){
-    
+
     resolution <- max(resolution[is.finite(resolution)]) # Interpolation resolution (number of times it enhances the resolution of the data)
     n_interpolation <- n_input_even * resolution # Calculate required number of interpolated values
     n_zeros <- n_interpolation - n_input_even # Number of zeros that should be padded in the frequency domain
-    measurements_ft <- fft(measurements)  # Calculate the discrete Fourier transform of the measurements
-    
+    measurements_ft <- stats::fft(measurements)  # Calculate the discrete Fourier transform of the measurements
+
     # Zero pad the transformed measurements (add zeros to the middle of the FFT'ed sequence)
     zero_padded_measurements_ft <- c(measurements_ft[1:(n_input_even/2)], rep(0, n_zeros),measurements_ft[((n_input_even/2)+1):(n_input_even)])
-    
+
     # Calculate the inverse Fourier transform of the padded measurements and return values at the desired times
-    return(Re(fft(zero_padded_measurements_ft, inverse = T) / n_input_even)[(interpolation_times-1) * resolution + 1])
+    return(Re(stats::fft(zero_padded_measurements_ft, inverse = T) / n_input_even)[(interpolation_times-1) * resolution + 1])
   }
-  
+
   # Otherwise return the data at the desired time points
   else{
     return(measurements[interpolation_times])

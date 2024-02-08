@@ -51,7 +51,9 @@ mc_rm_trend = function(mc){
 
 }
 
-#' @inheritParams pracma::findpeaks
+#' @param data a tibble with `temperature` and `derivative` values for melting curve
+#' @param ... will pass to `pracma::findpeaks()`
+#' @seealso [pracma::findpeaks()]
 #' @rdname curve-signal-process
 detect_tm = function(data, ...){
   temperature = data[["temperature"]]
