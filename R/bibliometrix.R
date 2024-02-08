@@ -60,11 +60,11 @@ authorProdOverTime2 <- function(M, k = 10, graph = TRUE) {
 }
 
 #' @title Count items in characters
-#' @md
 #' @param M a bibliometerix data.frame
 #' @param Tag name of the tag
 #' @param sep separator used to link multiple tags in `M`
 #'
+#' @md
 #' @export
 tableTag <- function(M, Tag = "CR", sep = ";") {
   if (Tag %in% c("AB", "TI")) {
@@ -207,12 +207,14 @@ shrink_lvl <- function(x, sort = TRUE, keep = 9, other = "Other"){
   return(ret)
 }
 
+#### For WenJuanXing  ###########
+
 # wenjuanxing
 summarise_plot <- function(data,
                            question = "Q1",
                            plot = c("pie","bar"),
                            multi_choice = FALSE,
-                           row_split = "┋"  ){
+                           row_split = "|"  ){
   plot <- match.arg(plot)
   if (multi_choice) data <- data %>% tidyr::separate_rows(question,sep = row_split)
   x <- data[[question]]
@@ -242,7 +244,7 @@ plot_this_question <- function(data, question,
   if (multi_choice == "auto") {
     multi_choice <- FALSE
     if (length(idx) > 2) multi_choice <- TRUE
-    if (any(stringr::str_detect(colname[idx], "\\u591a\\u9009"))) multi_choice <- TRUE
+    if (any(stringr::str_detect(colname[idx], ""))) multi_choice <- TRUE
   }
   if (multi_choice) {
     x <- unlist(data[idx]) %>% as.character()
@@ -267,9 +269,12 @@ plot_this_question <- function(data, question,
 get_question_name <- function(data, question){
   colname <- colnames(data)
   idx <- which(stringr::str_detect(colname, question))
-  name <- stringr::str_extract(colname[idx][[1]], "([^\\.]+\\？)")
+  name <- stringr::str_extract(colname[idx][[1]], "([^\\.]+\\?)")
   return(name)
 }
+
+
+#### For WoS export ####
 
 # read WoS export analysis summary
 read_wos_tsv <- function(file){
@@ -290,7 +295,7 @@ plot.ly <- function(g, tooltip = c("text"), ...) {
     plotly::layout(xaxis = list(fixedrange = TRUE)) %>% plotly::layout(yaxis = list(fixedrange = TRUE))
 }
 
-# determine wheter it is part of China
+# determine whether it is part of China
 is.part_of_china <- function(x) {
   stringr::str_detect(x,
              pattern = stringr::regex("CHINA|TAIWAN|HONG KONG|MACAO",
