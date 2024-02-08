@@ -61,7 +61,24 @@ lower_join = function(x){
     stringr::str_replace_all("\\s", "_")
 }
 
-# get run start tiem
+#' @title Access to QuantStudioRaw class object
+#'
+#' @description
+#'  * `get_quantstudio_run_time()` - Get run start time
+#'  * `get_quantstudio_melting_curve()` - Get melting curve
+#'  * `get_quantstudio_amplication()` - Get amplication data
+#'  * `get_quantstudio_raw()` - Get raw data
+#'  * `get_quantstudio_result()` - Get analysis results
+#' @name quantstudio-access
+#'
+#' @param x QuantStudioRaw object
+#'
+#' @return a tibble or a vector
+#' @md
+NULL
+
+#' @name quantstudio-access
+#' @export
 get_quantstudio_run_time = function(x){
   meta = get_by_name(x, "Meta")
   if ("experiment_run_start_time" %in% names(meta)) {
@@ -73,46 +90,27 @@ get_quantstudio_run_time = function(x){
 
 }
 
-#' Get melting curve from QuantStudio dataset
-#'
-#' @param x QuantStudio dataset
-#'
-#' @return a tibble
+
+#' @name quantstudio-access
 #' @export
-#'
 get_quantstudio_melting_curve = function(x){
   get_by_name(x, pattern = "Melt Curve Raw Data")
 }
 
-#' Get amplication data from QuantStudio dataset
-#'
-#' @param x  QuantStudio dataset
-#'
-#' @return a tibble
 #' @export
-#'
+#' @name quantstudio-access
 get_quantstudio_amplication = function(x){
   get_by_name(x, "Amplification Data")
 }
 
-#' Get raw data from QuantStudio dataset
-#'
-#' @param x  QuantStudio dataset
-#'
-#' @return a tibble
 #' @export
-#'
+#' @name quantstudio-access
 get_quantstudio_raw = function(x){
   get_by_name(x, "Raw Data")
 }
 
-#' Get analysis results from QuantStudio dataset
-#'
-#' @param x  QuantStudio dataset
-#'
-#' @return a tibble
 #' @export
-#'
+#' @name quantstudio-access
 get_quantstudio_result = function(x){
   get_by_name(x, "Results")
 }
@@ -124,16 +122,3 @@ get_by_name = function(x, pattern){
 }
 
 
-
-#' Print user-friendly information of a object
-#'
-#' @param object a object
-#' @method print QuantStudioRaw
-#' @rdname quantstudio
-#' @name quantastudio
-#' @docType methods
-#' @export
-print.QuantStudioRaw = function(object){
-            cat("An object of class 'QuantStudioRaw':\n")
-            cat("   Slots: ", paste0(names(object), collapse = ", "), ";\n", sep = "")
-          }
