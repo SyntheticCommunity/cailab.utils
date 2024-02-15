@@ -187,8 +187,6 @@ mc2tbl = function(mc){
   if (!is.null(date)) tbl = dplyr::mutate(tbl, date = date)
   if (!is.null(primer)) tbl = dplyr::mutate(tbl, primer = primer)
   if (!is.null(plate)) tbl = dplyr::left_join(tbl, plate, by = "well_position")
-  tbl = tbl |>
-    tidyr::unite(col = "well_position", tidyr::any_of(c("date","primer","plate","well_position")))
   return(tbl)
 }
 
