@@ -1,25 +1,42 @@
 # TODO list
 
+## Melting curve workflow
+
+Store raw data in objects
+
+- [x] QuantStudioRaw object
+- [x] MeltingCurve object
+
+Data preprocess with objects
+
+- [x] MeltingCurve data processing
+
+Prediction with `data.frame`
+
+- [x] Output class object to `data.frame`
+- [ ] Train model and output best model
+- [ ] Apply to new data
+
 ## Data intergration
 
-- [ ] MeltingCurve (`mc_`) object
-- [ ] curve + label
-- [ ] curve + curve
+- [x] MeltingCurve (`mc_`) object
+- [x] curve + label: Object with sample table
+- [x] curve + curve: output to `data.frame` and `bind_rows()`
 - [ ] simulation data (Gibbs free energy minimization)
-- [ ] remove/filter well
-- [ ] remove/filter temperature
+- [x] remove/filter well: `filterData()` method
+- [x] remove/filter temperature: `filterData()` method
 
 ## Curve analysis
 
-- [x] resample function
+- [x] resample function: `transformData()`
 - [ ] scale/normalization
-- [x] baseline subtraction
+- [x] baseline subtraction: `mc_baseline()`
 - [ ] distance calculation
 - [ ] correlation
 
 
-- [x] smoothing
-- [x] find peaks
+- [x] smoothing: 
+- [x] find peaks: `mc_get_tm()`
 
 
 - [ ] curve to scalogram/picture, 
