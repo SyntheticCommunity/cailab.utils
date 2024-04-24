@@ -6,17 +6,22 @@
 #' @return a ggplot object
 #' @export
 #'
-plot_384_community_structure = function(data, cols = dplyr::starts_with("concentration")){
+plot_384_community_structure = function(data, cols = dplyr::starts_with("label_")){
   p = plot_384(data)
   df = p$data %>%
     tidyr::pivot_longer(cols = cols,
                  names_to = "species",
-                 values_to = "quantity")
+                 values_to = "quantity")  |>
+    dplyr::mutate(quantity =  as.numeric(quantity)) |>
+    tidyr::drop_na() |>
+    dplyr::filter(is.finite(quantity))
   p +
-    ggforce::geom_arc_bar(aes(x0 = .data$col, y0 = .data$row, r0 = 0, r = 0.4, amount = .data$quantity, fill = .data$species),
+    ggforce::geom_arc_bar(aes(x0 = .data$col, y0 = .data$row, r0 = 0, r = 0.4,
+                              amount = .data$quantity, fill = .data$species),
                  stat = "pie",
                  data = df,
-                 inherit.aes = FALSE)
+                 inherit.aes = FALSE,
+                 na.rm = TRUE)
 }
 
 
@@ -24,13 +29,13 @@ plot_384_community_structure = function(data, cols = dplyr::starts_with("concent
 #'
 #' @param data definition of 384 plate
 #' @param species species name
-#' @param trans transformation of species abundance
+#' @param trans transformation of species abundance, c("identity", "log2")
 #' @param palette fill palette
 #' @param na.value color of NA values
 #'
 #' @return a ggplot object
 #' @export
-plot_384_single_concentration = function(data, species, trans = "log2", palette = "Blues", na.value = "white"){
+plot_384_single_concentration = function(data, species, trans = "identity", palette = "Blues", na.value = "white"){
   p = plot_384(data)
   p = p + ggplot2::aes_string(color = species) +
     ggplot2::geom_point(size = 5) +

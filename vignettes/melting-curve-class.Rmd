@@ -35,11 +35,22 @@ Plate.
 file = xfun::magic_path("quantstudio-sample-defination.csv.gz")
 plate = readr::read_csv(file)
 plate2 = plate |> 
-  dplyr::mutate(label_E = round(log2(373.1/as.numeric(label_E))),
-                label_P = round(log2(450/as.numeric(label_P)))) |>
+  dplyr::mutate(label_E = 1/(round(373.1/as.numeric(label_E))),
+                label_P = 1/(round(450/as.numeric(label_P)))) |>
   tidyr::drop_na()
 plate2
 ```
+
+## Plate setting
+
+```{r}
+plot_384_single_concentration(plate2, "label_E", trans = "log2")
+```
+
+```{r}
+plot_384_community_structure(plate2)
+```
+
 ## MC object
 
 `MC` stands for `MeltingCurve` object.
