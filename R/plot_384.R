@@ -16,8 +16,11 @@ plot_384_community_structure = function(data, cols = dplyr::starts_with("label_"
     tidyr::drop_na() |>
     dplyr::filter(is.finite(quantity))
   p +
-    ggforce::geom_arc_bar(aes(x0 = .data$col, y0 = .data$row, r0 = 0, r = 0.4,
-                              amount = .data$quantity, fill = .data$species),
+    ggforce::geom_arc_bar(aes(x0 = .data$col, y0 = .data$row,
+                              r0 = 0, r = 0.4,
+                              amount = .data$quantity,
+                              fill = .data$species),
+                          color = NA,
                  stat = "pie",
                  data = df,
                  inherit.aes = FALSE,
@@ -35,14 +38,10 @@ plot_384_community_structure = function(data, cols = dplyr::starts_with("label_"
 #'
 #' @return a ggplot object
 #' @export
-plot_384_single_concentration = function(data, species, trans = "identity", palette = "Blues", na.value = "white"){
+plot_384_single_concentration = function(data, species, well_size = 5){
   p = plot_384(data)
   p = p + ggplot2::aes_string(color = species) +
-    ggplot2::geom_point(size = 5) +
-    ggplot2::scale_color_distiller(trans = trans,
-                          palette = palette,
-                          direction = 1,
-                          na.value = na.value)
+    ggplot2::geom_point(size = well_size)
   p
 }
 
