@@ -286,7 +286,7 @@ read_wos_tsv <- function(file){
 }
 
 # just a optimized ggplotly()
-plot.ly <- function(g, tooltip = c("text"), ...) {
+plot_ly <- function(g, tooltip = c("text"), ...) {
   plotly::ggplotly(g, tooltip = tooltip, ...) %>%
     plotly::config(displaylogo = FALSE,
            modeBarButtonsToRemove = c("sendDataToCloud", "pan2d",
