@@ -22,7 +22,7 @@ get_gpt4_response = function(user_prompt = NULL,
                              system_prompt = "You are a helpful assistant.",
                              model = "gpt-4o-mini",
                              api_key = Sys.getenv("CHATANYWHERE_API_KEY"),
-                             base_url = "https://api.chatanywhere.tech",
+                             base_url = "https://api.chatanywhere.tech/v1",
                              output_format = "json_object") {
   # 设置请求头
   headers = c(
@@ -43,7 +43,7 @@ get_gpt4_response = function(user_prompt = NULL,
   
   # 发送 POST 请求
   response = httr::POST(
-    url = paste0(base_url, "/v1/chat/completions"),
+    url = paste0(base_url, "/chat/completions"),
     httr::add_headers(.headers = headers),
     body = jsonlite::toJSON(body, auto_unbox = TRUE),
     encode = "json"
