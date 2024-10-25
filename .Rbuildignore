@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 vignettes/todo.Rmd$
 ^Todo\.md$
+^data-raw$
