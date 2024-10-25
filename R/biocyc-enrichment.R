@@ -275,72 +275,6 @@ biocyc_create_smart_table = function(session,
   }
 }
 
-#' 建立BioCyc会话
-#'
-#' 此函数用于建立与BioCyc网站的会话连接。
-#'
-#' @param email 字符串，BioCyc账户的电子邮箱
-#' @param password 字符串，BioCyc账户的密码
-#' @param base_url 字符串，BioCyc API的基础URL，默认为"https://websvc.biocyc.org/"
-#'
-#' @return httr::handle对象，表示已建立的会话
-#' @export
-#'
-#' @importFrom httr handle_pool POST status_code content
-#' @examples
-#' \dontrun{
-#' session <- establish_biocyc_session("your_email@example.com", "your_password")
-#' }
-biocyc_session <- function(email = readline("请输入您的BioCyc注册邮箱: "), 
-                           password = readline("请输入您的BioCyc密码: "), 
-                           base_url = "https://websvc.biocyc.org/") {
-  login_url <- paste0(base_url, "credentials/login/")
-  
-  session <- httr::handle(base_url)
-  
-  response <- httr::POST(
-    url = login_url,
-    handle = session,
-    body = list(email = email, password = password),
-    encode = "form"
-  )
-  
-  if (httr::status_code(response) == 200) {
-    message("登录成功")
-    return(session)
-  } else {
-    stop("登录失败: ", httr::content(response, "text", encoding = "UTF-8"))
-  }
-}
-
-#' 获取所有基因
-#'
-#' 此函数用于获取指定生物体数据库中的所有基因
-#'
-#' @param session httr::handle对象，表示已建立的BioCyc会话
-#' @param pgdb 字符串，生物体数据库标识符（如 "ECOLI"）
-#'
-#' @return 数据框，包含所有基因信息
-#' @export
-#' @importFrom httr GET content status_code
-#' @importFrom readr read_delim
-#' @examples \dontrun{
-#' session <- establish_biocyc_session("your_email@example.com", "your_password")
-#' genes <- biocyc_get_all_genes(session, "ECOLI")
-#' print(genes)
-#' }    
-biocyc_get_all_genes = function(session, orgid = "ECOLI") {
-  url = paste0("https://websvc.biocyc.org/st-get?format=tsv&id=:ALL-GENES&orgid=", orgid)
-  response = httr::GET(url, handle = session)
-  if (httr::status_code(response) == 200) {
-    content = httr::content(response, "text", encoding = "UTF-8")
-    data = readr::read_delim(content, delim = "\t", col_names = TRUE, show_col_types = FALSE)
-    return(data)
-  } else {
-    stop("获取所有基因失败: ", httr::content(response, "text", encoding = "UTF-8"))
-  }
-}
-
 #' 获取富集分析结果
 #'
 #' 此函数用于获取BioCyc富集分析的结果
@@ -381,29 +315,6 @@ biocyc_get_enrichment_result = function(session, enrichment_result_id) {
     return(data)
   } else {
     stop("检索富集分析结果失败: ", httr::content(response, "text"))
-  }
-}
-
-#' 获取所有通路
-#'
-#' 此函数用于获取指定生物体数据库中的所有通路
-#'
-#' @param session httr::handle对象，表示已建立的BioCyc会话
-#' @param orgid 字符串，生物体数据库标识符（如 "ECOLI"）
-#'
-#' @return 数据框，包含所有通路信息
-#' @export
-#' @importFrom httr GET content status_code
-#' @importFrom readr read_delim
-biocyc_get_all_pathways = function(session, orgid = "ECOLI") {
-  url = paste0("https://websvc.biocyc.org/st-get?format=tsv&id=:ALL-PATHWAYS&orgid=", orgid)
-  response = httr::GET(url, handle = session)
-  if (httr::status_code(response) == 200) {
-    content = httr::content(response, "text", encoding = "UTF-8")
-    data = readr::read_delim(content, delim = "\t", col_names = TRUE, show_col_types = FALSE)
-    return(data)
-  } else {
-    stop("获取所有通路失败: ", httr::content(response, "text"))
   }
 }
 
