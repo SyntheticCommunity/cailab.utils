@@ -1,0 +1,46 @@
+---
+title: "BioCyc Database"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{biocyc}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(cailab.utils)
+```
+
+```{r}
+library(devtools)
+load_all()
+# session = establish_biocyc_session()
+
+# 获取所有基因
+all_genes = biocyc_get_all_genes(session, orgid = "ECOLI")
+
+# 创建智能表
+selected_genes = all_genes[[1]][1:30]
+smart_table_id = create_smart_table(session, orgid = "ECOLI", type = "Genes", values = selected_genes)
+
+# 获取智能表
+smart_table = biocyc_retrieve_smart_table(session, smart_table_id)
+
+# 运行富集分析
+enrichment_result_id = biocyc_enrichment(session, table_id = smart_table_id, method = "GET")
+enrichment_result = biocyc_get_enrichment_result(session, enrichment_result_id)
+
+# 添加属性列
+biocyc_add_property_column(session, enrichment_result_id, c("COMMON-NAME", "REACTION-LIST"), index = 0)
+enrichment_result = biocyc_get_enrichment_result(session, enrichment_result_id)
+
+# 删除富集分析结果
+biocyc_delete_smart_table(session, enrichment_result_id)
+```
