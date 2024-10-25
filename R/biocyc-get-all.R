@@ -40,7 +40,7 @@ biocyc_get_all = function(session, type = "pathways", orgid = "ECOLI") {
   type_available = c("ATTENUATORS","COMPOUNDS","GENES","ORGANISMS","PATHWAYS",
                      "PROMOTERS", paste0("PROTEINS-", 0:9), 
                      "PUBLICATIONS", "REACTIONS", "RIBOSWITCHES", "RNAS",
-                     "TERMINATORS","TRANSCRIPTION-FACTOR-BINDING-SITES", 
+                     "TERMINATORS", "TRANSCRIPTION-FACTOR-BINDING-SITES", 
                      "TRANSCRIPTION-UNITS")
   protein_types = c("PROTEINS", "POLYPEPTIDES", "PROTEIN-COMPLEXES", "ENZYMES",
                     "RIBOSOMAL-PROTEINS", "TRANSCRIPTION-FACTORS", "TRANSPORTERS",
