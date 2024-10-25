@@ -5,3 +5,7 @@
 .DS_Store
 man
 inst/doc
+
+.env
+logs/
+__pycache__/
