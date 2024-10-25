@@ -47,12 +47,11 @@ insert_citation = function(id, bib_file = "reference.bib") {
 #' @param id 字符串，输入的 ID。
 #'
 #' @return 字符串，"doi" 或 "pubmed"。
-#'
+#' @export
+
 #' @examples
 #' type_of_id("10.1000/xyz123")  # 返回 "doi"
 #' type_of_id("12345678")        # 返回 "pubmed"
-#'
-#' @export
 type_of_id = function(id) {
   if (grepl("^10\\.[0-9]{4,9}/[-._;()/:A-Z0-9]+$", id, ignore.case = TRUE)) {
     return("doi")
@@ -70,14 +69,13 @@ type_of_id = function(id) {
 #' @param pubmed_id 字符串，PubMed ID。
 #'
 #' @return 列表，包含文献的详细信息。
-#'
+#' @export
 #' @examples
 #' \dontrun{
 #' record = get_pubmed_record("12345678")
 #' print(record)
 #' }
 #'
-#' @export
 get_pubmed_record = function(pubmed_id) {
   base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
   query = list(
