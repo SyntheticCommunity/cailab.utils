@@ -15,8 +15,8 @@
 #' \dontrun{
 #' session <- establish_biocyc_session("your_email@example.com", "your_password")
 #' }
-biocyc_session <- function(email = readline("请输入您的BioCyc注册邮箱: "),  # nolint
-                           password = readline("请输入您的BioCyc密码: "), 
+biocyc_session <- function(email = readline("请输入您的BioCyc注册邮箱: "),
+                           password = readline("请输入您的BioCyc密码: "),
                            base_url = "https://websvc.biocyc.org/") {
   login_url <- paste0(base_url, "credentials/login/")
   
