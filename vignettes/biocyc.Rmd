@@ -14,33 +14,107 @@ knitr::opts_chunk$set(
 )
 ```
 
+这里使用 *E. coli* 作为示例，展示如何调用 BioCyc 进行富集分析。
+
 ```{r setup}
 library(cailab.utils)
+devtools::load_all()
 ```
 
+## 建立会话
+
 ```{r}
-library(devtools)
-load_all()
-# session = establish_biocyc_session()
+session = establish_biocyc_session()
+```
 
+## 获取所有基因
+
+```{r}
 # 获取所有基因
-all_genes = biocyc_get_all_genes(session, orgid = "ECOLI")
+all_genes = biocyc_get_all(session, orgid = "ECOLI", type = "Genes")
+all_genes
+```
 
+## 创建智能表
+
+```{r}
 # 创建智能表
 selected_genes = all_genes[[1]][1:30]
-smart_table_id = create_smart_table(session, orgid = "ECOLI", type = "Genes", values = selected_genes)
+smart_table_id = biocyc_create_smart_table(session, orgid = "ECOLI", type = "Genes", values = selected_genes)
+``` 
 
-# 获取智能表
-smart_table = biocyc_retrieve_smart_table(session, smart_table_id)
+## 获取智能表
 
-# 运行富集分析
+```{r}
+smart_table = biocyc_get_smart_table(session, smart_table_id, format = "tsv")
+smart_table
+```
+
+## 运行富集分析
+
+将 Smart Table 中保存的基因提交，进行富集分析。富集分析会生成一个新的 Smart Table。在里面保存富集到的代谢通路或 GO 条目。
+
+```{r}
 enrichment_result_id = biocyc_enrichment(session, table_id = smart_table_id, method = "GET")
 enrichment_result = biocyc_get_enrichment_result(session, enrichment_result_id)
+enrichment_result
+```
 
+## 添加属性列
+
+所有新建的 Smart Table 默认只有一列，即 ID 列。为了给 Smart Table 中加入更多有用的信息，用户可以使用 `biocyc_add_property_column` 函数为 Smart Table 添加更多的列。
+
+```{r}
 # 添加属性列
 biocyc_add_property_column(session, enrichment_result_id, c("COMMON-NAME", "REACTION-LIST"), index = 0)
-enrichment_result = biocyc_get_enrichment_result(session, enrichment_result_id)
+enrichment_result2 = biocyc_get_enrichment_result(session, enrichment_result_id)
+enrichment_result2
+```
 
+或者使用 `biocyc_transform` 函数对 Smart Table 进行转换。将 pathway 中包含的基因添加到 Smart Table 中。
+
+```{r}
+biocyc_transform(session, enrichment_result_id, transform_id = "pwy-genes", index = 0)
+enrichment_result3 = biocyc_get_enrichment_result(session, enrichment_result_id)
+enrichment_result3
+```
+
+`transform_id` 是转换操作的唯一标识符。用户可以通过软件包内置的数据集 `transformations` 获取所有可用的转换操作。下面是针对 pathway 所有可以使用的转换操作。
+
+```{r}
+# 查看针对 pathway 所有可以使用的转换操作
+transformations |> dplyr::filter(stringr::str_detect(id, "pwy"))
+```
+
+也可以针对 selected gene 进行转换，获取更多信息。
+
+```{r}
+# 查看针对 gene 所有可以使用的转换操作
+transformations |> dplyr::filter(stringr::str_starts(id, "gene"))
+
+# 添加 gene accession，transcriptional regulator，pathway，reaction 列
+biocyc_transform(session, smart_table_id, transform_id = "gene-accession", index = 0)
+biocyc_transform(session, smart_table_id, transform_id = "gene-tfs", index = 0)
+biocyc_transform(session, smart_table_id, transform_id = "gene-pwys", index = 0)
+biocyc_transform(session, smart_table_id, transform_id = "gene-rxns", index = 0)
+smart_table2 = biocyc_get_smart_table(session, smart_table_id, format = "tsv")
+smart_table2
+
+# 查看与 gene 相关的列
+properties |> dplyr::filter(stringr::str_detect(description, "gene"))
+
+# 添加 common-name，product，accession-1，names，last-update，regulated-by 列
+biocyc_add_property_column(session, smart_table_id, 
+                           c("common-name", "product", "accession-1", "names", "last-update", "regulated-by"))
+smart_table3 = biocyc_get_smart_table(session, smart_table_id, format = "tsv")
+smart_table3
+```
+
+## 删除富集分析结果
+
+```{r}
 # 删除富集分析结果
 biocyc_delete_smart_table(session, enrichment_result_id)
+# 删除智能表
+biocyc_delete_smart_table(session, smart_table_id)
 ```
