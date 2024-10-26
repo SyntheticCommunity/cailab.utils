@@ -24,7 +24,7 @@ devtools::load_all()
 ## 建立会话
 
 ```{r}
-session = establish_biocyc_session()
+session = establish_biocyc_session(Sys.getenv("BIOCYC_USERNAME"), Sys.getenv("BIOCYC_PASSWORD"))
 ```
 
 ## 获取所有基因
