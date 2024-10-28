@@ -10,7 +10,7 @@
 #' @return httr::handle对象，表示已建立的会话
 #' @export
 #'
-#' @importFrom httr handle_pool POST status_code content
+#' @importFrom httr handle POST status_code content
 #' @examples
 #' \dontrun{
 #' session <- establish_biocyc_session("your_email@example.com", "your_password")
