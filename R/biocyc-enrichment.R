@@ -12,7 +12,6 @@
 #' @param threshold 数值，P 值阈值，介于 0 和 1 之间（默认为 0.1）
 #' @param statistic 字符串，统计方法，可选 "fisher-exact"（默认）、"parent-child-union" 或 "parent-child-intersection"
 #' @param correction 字符串，多重检验校正方法，可选 "none"（默认）、"bonferroni"、"bh"（Benjamini-Hochberg）或 "by"（Benjamini-Yekutieli）
-#' @param format 字符串，上传数据的格式，可选 "json"、"xml" 或 "tsv"（仅在 method="PUT" 时使用）
 #' @param class 字符串，数据类型，可选 "Genes" 或 "Compounds"（仅在 method="PUT" 且 format="tsv" 时使用）
 #'
 #' @return 数据框，包含富集分析结果
@@ -43,12 +42,22 @@
 #' @importFrom jsonlite fromJSON
 #' @examples \dontrun{
 #' # 使用 GET 方法
-#' result_get = biocyc_enrichment(method = "GET", table_id = "your_table_id", key = "enrich-all-gen", organism_id = "ECOLI", session = session)
+#' result_get = biocyc_enrichment(method = "GET", 
+#'                  table_id = "your_table_id", 
+#'                  key = "enrich-all-gen", 
+#'                  organism_id = "ECOLI", 
+#'                  session = session)
 #' print(result_get)
 #'
 #' # 使用 PUT 方法
 #' gene_list = c("gene1", "gene2", "gene3")
-#' result_put = biocyc_enrichment(method = "PUT", gene_list = gene_list, key = "enrich-genes-pwys", organism_id = "ECOLI", session = session, format = "tsv", class = "Genes")
+#' result_put = biocyc_enrichment(method = "PUT", 
+#'                                gene_list = gene_list, 
+#'                                key = "enrich-genes-pwys", 
+#'                                organism_id = "ECOLI", 
+#'                                session = session, 
+#'                                format = "tsv", 
+#'                                class = "Genes")
 #' print(result_put)
 #' }
 biocyc_enrichment = function(session, 

@@ -5,6 +5,7 @@
 #'
 #' @param session httr::handle对象，表示已建立的BioCyc会话
 #' @param table_id 字符串，SmartTable的唯一标识符
+#' @param format 字符串，返回格式，可选 "json" 或 "tsv"，默认 "json"
 #'
 #' @return 根据指定格式返回SmartTable的内容
 #' @export
@@ -63,7 +64,7 @@ biocyc_get_smart_table = biocyc_retrieve_smart_table
 #' 此函数用于创建一个新的 BioCyc SmartTable
 #'
 #' @param session httr::handle对象，表示已建立的BioCyc会话
-#' @param pgdb 字符串，生物体数据库标识符，即 orgid（如 "ECOLI"）
+#' @param orgid 字符串，生物体数据库标识符，即 orgid（如 "ECOLI"）
 #' @param type 字符串，第一列对象所属的类，如 'Genes'、'Compounds'。默认 "Genes"
 #' @param name 字符串，SmartTable的名称（可选）
 #' @param description 字符串，SmartTable的描述（可选）
@@ -123,12 +124,14 @@ biocyc_get_smart_table = biocyc_retrieve_smart_table
 #' smart_table_id <- create_smart_table(session, '/path/to/data.json')
 #' print(paste("创建的SmartTable ID:", smart_table_id))
 #' }
-biocyc_create_smart_table = function(session, 
-                              orgid = "ECOLI", 
-                              name = "test",
-                              type = c("Genes", "Compounds", "Reactions", "Pathways", "Proteins", "Transcription-Units", "Attenuators"),
-                              description = NULL,
-                              values = c("trpA", "trpB")) {
+biocyc_create_smart_table = function(
+  session, 
+  orgid = "ECOLI", 
+  name = "test",
+  type = c("Genes", "Compounds", "Reactions", "Pathways", "Proteins", "Transcription-Units", "Attenuators"),
+  description = NULL,
+  values = c("trpA", "trpB")
+) {
   base_url = "https://websvc.biocyc.org/st-create"
   #type = match.arg(type)
   # 构建URL

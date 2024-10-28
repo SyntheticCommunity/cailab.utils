@@ -3,3 +3,4 @@
 vignettes/todo.Rmd$
 ^Todo\.md$
 ^data-raw$
+.lintr
