@@ -17,7 +17,7 @@ read_fast5k = function(file, remove = "auto") {
     stop("文件不存在: ", file)
   }
   
-  data = readr::read_tsv(file, col_names = TRUE, show_col_types = FALSE)
+  data = readr::read_tsv(file, col_names = TRUE, show_col_types = FALSE, quote = "")
   
   # 处理 remove 参数
   if (remove == "auto") {
