@@ -91,14 +91,19 @@ zhipuai_upload_file <- function(file_path, api_key = Sys.getenv("ZHIPUAI_API_KEY
 #' @param api_key 智谱AI的API密钥,默认从环境变量ZHIPUAI_API_KEY中获取
 #' @return 返回创建成功的批处理任务ID
 #' @export
-zhipuai_create_batch_job <- function(file_id, job_description = "Batch Task", api_key = Sys.getenv("ZHIPUAI_API_KEY")) {
+zhipuai_create_batch_job <- function(
+  file_id, 
+  job_description = "Batch Task", 
+  endpoint = "/v4/chat/completions", 
+  api_key = Sys.getenv("ZHIPUAI_API_KEY")
+) {
   req <- httr2::request("https://open.bigmodel.cn/api/paas/v4/batches") %>%
     httr2::req_headers(
       "Authorization" = paste("Bearer", api_key)
     ) %>%
     httr2::req_body_json(list(
       input_file_id = file_id,
-      endpoint = "/v4/chat/completions",
+      endpoint = endpoint,
       auto_delete_input_file = TRUE,
       metadata = list(
         description = job_description
