@@ -203,7 +203,12 @@ zhipuai_check_batch_status <- function(batch_id, interval = 5, api_key = Sys.get
     }
     Sys.sleep(interval)
   }
-  invisible(status_data$output_file_id)
+  file = list(
+    batch_id = status_data$id,
+    output = status_data$output_file_id,
+    error = status_data$error_file_id
+  )
+  invisible(file)
 }
 
 
@@ -212,24 +217,44 @@ zhipuai_check_batch_status <- function(batch_id, interval = 5, api_key = Sys.get
 #' 
 #' 此函数用于下载批处理任务的结果
 #'
-#' @param file_id 批处理任务的文件ID
+#' @param file_list 批处理任务的文件ID列表
 #' @param output_path 结果保存的路径
 #' @param api_key 智谱AI的API密钥,默认从环境变量ZHIPUAI_API_KEY中获取
 #' @return 返回结果保存的路径
 #' @export
-zhipuai_download_batch_results <- function(file_id, output_path, api_key = Sys.getenv("ZHIPUAI_API_KEY")) {
+zhipuai_download_batch_results <- function(file_list, output_path, api_key = Sys.getenv("ZHIPUAI_API_KEY")) {
+  cli::cli_h1("开始下载批处理任务 {file_list$batch_id} 的结果...")
+  zhipuai_download_file(file_list$output, gsub("\\.jsonl$", "_output.jsonl", output_path), api_key)
+  zhipuai_download_file(file_list$error, gsub("\\.jsonl$", "_error.jsonl", output_path), api_key)
+  invisible(output_path)
+}
+
+
+#' 下载智谱AI平台上的文件
+#'
+#' 此函数用于下载智谱AI平台上的文件
+#'
+#' @param file_id 文件的ID
+#' @param output_path 结果保存的路径
+#' @param api_key 智谱AI的API密钥,默认从环境变量ZHIPUAI_API_KEY中获取
+#' @return 返回结果保存的路径
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' zhipuai_download_file("file_id", "output_path")
+#' }
+zhipuai_download_file <- function(file_id, output_path, api_key = Sys.getenv("ZHIPUAI_API_KEY")) {
   req <- httr2::request(paste0("https://open.bigmodel.cn/api/paas/v4/files/", file_id, "/content")) %>%
     httr2::req_headers(
       "Authorization" = paste("Bearer", api_key)
     ) %>%
     httr2::req_method("GET")
-  
   resp <- httr2::req_perform(req)
   writeBin(resp$body, output_path)
-  cli::cli_alert_success("批处理结果已保存到 {output_path}")
+  cli::cli_alert_success("文件 {file_id} 已保存到 {output_path}")
   invisible(output_path)
 }
-
 
 
 #' 删除文件
