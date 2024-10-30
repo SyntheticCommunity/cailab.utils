@@ -1,75 +1,5 @@
 
-#' 上传文件到智谱AI平台
-#' 
-#' 此函数用于将本地文件上传到智谱AI平台,用于后续的批处理任务
-#'
-#' @param file_path 需要上传的本地文件路径
-#' @param api_key 智谱AI的API密钥,默认从环境变量ZHIPUAI_API_KEY中获取
-#' @return 返回上传成功后的文件ID
-#' @export
-zhipuai_file_upload <- function(file_path, api_key = Sys.getenv("ZHIPUAI_API_KEY")) {
-  req <- httr2::request("https://open.bigmodel.cn/api/paas/v4/files") %>%
-    httr2::req_headers(
-      "Authorization" = paste("Bearer", api_key)
-    ) %>%
-    httr2::req_body_multipart(
-      file = curl::form_file(file_path),
-      purpose = "batch"
-    ) %>%
-    httr2::req_method("POST")
-  
-  resp <- httr2::req_perform(req)
-  file_id <- jsonlite::fromJSON(rawToChar(resp$body))$id
-  cli::cli_alert_success("文件 {file_path} 上传成功! 文件ID: {file_id}")
-  return(file_id)
-}
-
-#' 下载智谱AI平台上的文件
-#'
-#' 此函数用于下载智谱AI平台上的文件
-#'
-#' @param file_id 文件的ID
-#' @param output_path 结果保存的路径
-#' @param api_key 智谱AI的API密钥,默认从环境变量ZHIPUAI_API_KEY中获取
-#' @return 返回结果保存的路径
-#' @export
-#'
-#' @examples
-#' \dontrun{
-#' zhipuai_download_file("file_id", "output_path")
-#' }
-zhipuai_file_download <- function(file_id, output_path, api_key = Sys.getenv("ZHIPUAI_API_KEY")) {
-  req <- httr2::request(paste0("https://open.bigmodel.cn/api/paas/v4/files/", file_id, "/content")) %>%
-    httr2::req_headers(
-      "Authorization" = paste("Bearer", api_key)
-    ) %>%
-    httr2::req_method("GET")
-  resp <- httr2::req_perform(req)
-  writeBin(resp$body, output_path)
-  cli::cli_alert_success("文件 {file_id} 已保存到 {output_path}")
-  invisible(output_path)
-}
-
-
-#' 删除文件
-#' 
-#' 此函数用于删除智谱AI平台上的文件
-#'
-#' @param file_id 文件的ID
-#' @param api_key 智谱AI的API密钥,默认从环境变量ZHIPUAI_API_KEY中获取
-#' @return 返回删除文件的结果
-#' @export
-zhipuai_file_delete <- function(file_id, api_key = Sys.getenv("ZHIPUAI_API_KEY")) {
-  req <- httr2::request(paste0("https://open.bigmodel.cn/api/paas/v4/files/", file_id)) %>%
-    httr2::req_headers(
-      "Authorization" = paste("Bearer", api_key)
-    ) %>%
-    httr2::req_method("DELETE")
-  
-  resp <- httr2::req_perform(req)
-  cli::cli_alert_success("文件 {file_id} 删除成功!")
-  invisible(jsonlite::fromJSON(rawToChar(resp$body)))
-}
+# 智谱 AI 批处理任务 API
 
 #' 构建智谱AI批处理任务
 #'
@@ -167,6 +97,8 @@ zhipuai_batch_create <- function(
   return(batch_id)
 }
 
+#' @export
+zhipuai_batch_submit = zhipuai_batch_create
 
 #' 检查 Batch 批处理任务的状态
 #' 
@@ -193,10 +125,11 @@ zhipuai_batch_status_get <- function(batch_id, api_key = Sys.getenv("ZHIPUAI_API
 #'
 #' @param batch_id 批处理任务的ID
 #' @param interval 检查间隔时间,默认5秒
+#' @param timeout 查询任务超时时间,默认30秒
 #' @param api_key 智谱AI的API密钥,默认从环境变量ZHIPUAI_API_KEY中获取
 #' @return 返回批处理任务的状态
 #' @export
-zhipuai_batch_status_check <- function(batch_id, interval = 5, api_key = Sys.getenv("ZHIPUAI_API_KEY")) {
+zhipuai_batch_status_check <- function(batch_id, interval = 5, timeout = 30, api_key = Sys.getenv("ZHIPUAI_API_KEY")) {
   cli::cli_h1("开始持续检查批处理任务 {batch_id} 的状态（{interval}秒检查一次）...")
   cli::cli_alert_info("按 Ctrl+C 停止")
   status_data <- zhipuai_batch_status_get(batch_id = batch_id, api_key = api_key)
@@ -209,9 +142,14 @@ zhipuai_batch_status_check <- function(batch_id, interval = 5, api_key = Sys.get
     current = FALSE
   )
   last_progress <- 0
-
+  start_time <- Sys.time()
   # 循环检查任务状态
   while (TRUE) {
+    # 检查是否超时
+    if (difftime(Sys.time(), start_time, units = "secs") > timeout) {
+      cli::cli_alert_danger("查询任务超时。请稍后再试或者增加timeout参数的值。")
+      break
+    }
     # 获取当前状态
     status_data <- zhipuai_batch_status_get(batch_id = batch_id, api_key = api_key)
     current_status <- status_data$status
@@ -366,6 +304,7 @@ zhipuai_batch_list_all <- function(limit = 20, api_key = Sys.getenv("ZHIPUAI_API
 #' 此函数用于解析从智谱AI平台下载的批处理任务结果文件（JSONL格式）
 #'
 #' @param file_path 字符串，批处理任务结果文件的路径
+#' @param type 字符串，批处理任务类型,默认为"chat",可选值为"chat"或"embedding"
 #' @return 返回一个tibble数据框，包含解析后的结果
 #' @export
 #'
@@ -373,28 +312,18 @@ zhipuai_batch_list_all <- function(limit = 20, api_key = Sys.getenv("ZHIPUAI_API
 #' \dontrun{
 #' results <- zhipuai_parse_batch_results("batch_results.jsonl")
 #' }
-zhipuai_batch_results_chat_parse <- function(file_path) {
+zhipuai_batch_results_parse <- function(file_path, type = "chat") {
   # 读取行
-  lines <- readLines(file_path)
+  lines <- readLines(file_path, encoding = "UTF-8")
 
+  parser <- switch(type,
+    chat = zhipuai_result_chat_parser,
+    embedding = zhipuai_result_embedding_parser
+  )
   # 解析每一行 JSON
-  results <- lapply(lines, function(line) {
-    # 解析外层 JSON
-    outer_json <- jsonlite::fromJSON(line, simplifyVector = FALSE)
-    
-    # 提取 content 中的 JSON 字符串
-    content <- outer_json$response$body$choices[[1]]$message$content
-    
-    # 移除 content 中的 ```json 和 ``` 标记
-    content <- gsub("```json\n|```", "", content)
-    
-    # 解析 content 中的 JSON
-    inner_json <- jsonlite::fromJSON(content)
-    
-    # 转换为数据框
-    dplyr::as_tibble(inner_json)
-  })  |> 
+  results <- lapply(lines, parser)  |> 
     dplyr::bind_rows()
   
   return(results)
 }
+

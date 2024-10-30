@@ -1,0 +1,129 @@
+---
+title: "zhipuai"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{zhipuai}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+# library(cailab.utils)
+devtools::load_all()
+```
+
+## 生成批处理任务
+
+使用 `zhipuai_batch_build()` 函数生成批处理任务。可以分别指定模型(`model`)、系统提示词(`system_prompt`)、请求ID(`request_id`)、用户提示词（`user_prompt`）等参数。如果用户提示词为空，则自动将传入的数据放到用户提示词中。
+
+每个数据生成一个请求，写入文件中时，一行一个请求。
+
+```{r}
+# 生成批处理任务
+data = list(
+  question1 = "你好",
+  question2 = "你叫什么名字？",
+  question3 = "你今年几岁？"
+)
+
+list = lapply(seq_along(data), function(i) {
+  request_id = names(data)[i]
+  zhipuai_batch_build(
+    data[[i]],
+    request_id = request_id,
+    model = "glm-4-flash",
+    system_prompt = "请用温柔的语气回复我"
+  )
+})
+
+temp_file = tempfile(fileext = ".jsonl")
+writeLines(unlist(list), temp_file)
+```
+
+## 提交批处理任务
+
+提交批处理任务分为 2 步。
+
+1. 上传文件到服务器：这一步调用 `zhipuai_file_upload()` 函数，返回文件ID。
+2. 使用服务器中的文件创建批处理任务：这一步调用 `zhipuai_batch_create()` 函数，返回批处理任务ID。
+
+```{r}
+file_id = zhipuai_file_upload(temp_file)
+batch_id = zhipuai_batch_create(file_id)
+```
+
+**说明**：提交任务需要用到 API 密钥，请确保已经设置环境变量 `ZHIPUAI_API_KEY`。
+
+## 查询批处理任务状态
+
+使用 `zhipuai_batch_status_get()` 函数查询批处理任务状态。返回的数据结构包含任务的完整信息，包括：
+
+返回的数据结构包含以下字段（部分）:
+
+- `id`: 批处理任务的唯一标识符
+- `object`: 对象类型,固定为"batch" 
+- `endpoint`: API 端点,表示任务类型
+- `input_file_id`: 输入文件的ID
+- `status`: 任务状态,可能的值包括:
+  - validating: 验证中
+  - in_progress: 处理中 
+  - completed: 已完成
+  - failed: 失败
+  - expired: 已过期
+  - cancelled: 已取消
+- `output_file_id`: 输出文件的ID
+- `error_file_id`: 错误文件的ID
+- `created_at`: 创建时间戳
+- `in_progress_at`: 开始处理时间
+- `request_counts`: 请求统计信息
+  - total: 总请求数
+  - completed: 已完成数
+  - failed: 失败数
+- `metadata`: 元数据
+  - description: 任务描述（用户自定义的说明）
+
+例如:
+
+```{r}
+batch_status = zhipuai_batch_status_get(batch_id)
+batch_status
+```
+
+使用 `zhipuai_batch_status_check()` 函数持续检测批处理任务状态。待任务完成后，会返回任务结果的文件 URL。
+
+```{r}
+result_file = zhipuai_batch_status_check(batch_id, interval = 1, timeout = 3)
+result_file
+```
+
+## 下载批处理任务结果
+
+```{r eval = FALSE}
+result_file_path = tempfile(fileext = ".jsonl")
+zhipuai_file_download(result_file$output, result_file_path)
+```
+
+
+## 解析批处理任务结果
+
+对于不同的任务（或模型），智谱 AI 返回的结果格式不同。因此，需要根据任务类型（或模型）选择不同的解析函数。
+
+### 聊天任务
+
+```{r}
+# 可以正常解析的结果
+file_path = system.file("extdata", "zhipuai-batch-chat-result-output.jsonl", package = "cailab.utils")
+lines <- readLines(file_path, encoding = "UTF-8")
+lapply(lines, zhipuai_result_chat_parser) |> 
+  dplyr::bind_rows()
+
+zhipuai_batch_results_parse(file_path, type = "chat")
+```
+
