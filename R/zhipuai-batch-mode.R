@@ -71,6 +71,7 @@ zhipuai_batch_build <- function(
 #' @param endpoint 字符串,API端点,默认为"/v4/chat/completions"
 #' @return 返回创建成功的批处理任务ID
 #' @export
+#' @name zhipuai_batch_create
 zhipuai_batch_create <- function(
   file_id, 
   job_description = "Batch Task", 
@@ -98,6 +99,7 @@ zhipuai_batch_create <- function(
 }
 
 #' @export
+#' @rdname zhipuai_batch_create
 zhipuai_batch_submit = zhipuai_batch_create
 
 #' 检查 Batch 批处理任务的状态

@@ -23,10 +23,11 @@
 #'
 #' @name simplified_network
 #'
-#' @examples
+#' @examples \dontrun{
 #' library("bibliometrixData")
 #' data("garfield")
 #' author_network(garfield)
+#' }
 simplified_network <- function(M, from = NULL, to = NULL, nNode = 30,
                                remove_keyword = NULL,
                                edge_weight_cutoff = 1,

@@ -16,13 +16,14 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(cailab.utils)
+devtools::load_all()
 ```
 
 ## 设计常规 PCR 引物
 
 使用 Primer3 设计常规引物。
 
-```{r}
+```{r eval = FALSE}
 library(rPrimer3)
 fas = system.file("sequence.fa", package = "rPrimer3")
 design_primer_from_file(fas, parts = 1)
@@ -34,9 +35,8 @@ design_primer_from_file(fas, parts = 1)
 
 
 
-```{r}
+```{r eval = FALSE}
 library(cailab.utils)
-devtools::load_all()
 design_specific_primer(fas)
 ```
 
@@ -46,12 +46,12 @@ design_specific_primer(fas)
 Sys.setenv(UNIKMER="/home/gaoch/anaconda3/envs/kprimer/bin/unikmer")
 ```
 
-```{bash}
+```{bash eval = FALSE}
 $UNIKMER
 ```
 
 
-```{zsh}
+```{zsh }
 $UNIKMER
 ```
 
