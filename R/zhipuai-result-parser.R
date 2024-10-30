@@ -12,30 +12,35 @@ zhipuai_result_chat_parser <- function(result) {
                            message("解析外层 JSON 失败: ", e)
                            return(NULL)
                          })
-  
-  # 提取 content 中的 JSON 字符串
-  content <- outer_json$response$body$choices[[1]]$message$content
-  result <- tryCatch(extract_from_content_json(content),
-                     error = function(e) {
-                       message("解析内容中的 JSON 失败: ", e)
-                       return(NULL)
-                     })
-  
-  # 转换为数据框
-  dplyr::as_tibble(result)
+  if (!is.null(outer_json)) {
+    # 提取 content 中的 JSON 字符串
+    content <- outer_json$response$body$choices[[1]]$message$content
+    inter_json_result <- tryCatch(extract_from_content_json(content),
+                                  error = function(e) {
+                                    message("解析内容中的 JSON 失败: ", e)
+                                    return(NULL)
+                                  })
+    if (!is.null(inter_json_result)) {
+      # 转换为数据框
+      tbl <- dplyr::as_tibble(inter_json_result) |> 
+        dplyr::mutate(custom_id = outer_json$custom_id, .before = 1)
+      return(tbl)
+    }
+  }
+  return(NULL)
 }
 
 # 处理不规范的 JSON 字符串
 extract_from_content_json = function(content) {
   valid = valid_json(content)
   while (!valid) {
-    content = remove_markdown_code_block(content)
-    valid = valid_json(content)
+    content <- remove_markdown_code_block(content)
+    valid <- valid_json(content)
     if (valid) {
       break
     }
-    content = escape_double_quote(content)
-    valid = valid_json(content)
+    content <- escape_double_quote(content)
+    valid <- valid_json(content)
     if (valid) {
       break
     }
@@ -43,18 +48,18 @@ extract_from_content_json = function(content) {
     break
   }
 
-  result = jsonlite::fromJSON(content)
+  result <- jsonlite::fromJSON(content)
   return(result)
 }
 
 valid_json = function(content) {
-  tryCatch({
-    jsonlite::fromJSON(content, simplifyVector = FALSE, encoding = "UTF-8")
-    return(TRUE)
-  },
-  error = function(e) {
-    return(FALSE)
-  })
+  suppressWarnings(tryCatch(
+    expr = {
+      jsonlite::fromJSON(content, simplifyVector = FALSE, encoding = "UTF-8")
+      return(TRUE)
+    },
+    error = function(e) FALSE
+  ))
 }
 
 remove_markdown_code_block = function(content) {
