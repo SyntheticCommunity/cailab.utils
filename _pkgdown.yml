@@ -1,0 +1,125 @@
+url: https://syntheticcommunity.github.io/cailab.utils/
+
+template:
+  bootstrap: 5
+  bootswatch: cosmo
+  bslib:
+    primary: "#0054AD"
+    border-radius: 0.5rem
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, tutorials, news]
+    right: [search, github]
+  components:
+    reference:
+      text: Functions
+      href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+      - text: BioCyc Database Guide
+        href: articles/biocyc.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/syntheticcommunity/cailab.utils
+
+reference:
+- title: BioCyc Database
+  desc: Functions for interacting with BioCyc database
+  contents:
+  - starts_with("biocyc_")
+  - properties
+  - transformations
+
+- title: Bibliometric Analysis
+  desc: Functions for bibliometric analysis and visualization
+  contents:
+  - starts_with("bibliometrix_")
+  - starts_with("plot_bibliometrix")
+  - get_doi_record
+  - get_pubmed_record
+  - insert_citation
+  - read_fast5k
+
+- title: Sequence Analysis
+  desc: Functions for sequence alignment and analysis
+  contents:
+  - starts_with("align_")
+  - starts_with("sequence_")
+  - design_specific_primer
+  - run_alignment_with_muscle
+  - tree_from_aln
+
+- title: Synthetic Community
+  desc: Functions for synthetic community analysis
+  contents:
+  - starts_with("syncom_")
+  - combinations
+  - one_plate
+  - sort_combination
+  - sub_community
+
+- title: Data Visualization
+  desc: Functions for data visualization and plotting
+  contents:
+  - starts_with("plot_")
+  - starts_with("stat_")
+  - DT_output
+  - DT_table
+  - extract_from_hist_graph
+  - four_dimension_barplot
+  - gg_boxplot
+  - gg_boxplot_with_group
+  - ggpie
+  - kable_classic2
+  - tableTag
+  - tableTag_barplot
+
+- title: Network Analysis
+  desc: Functions for network analysis and visualization
+  contents:
+  - graph_add_node
+  - simplified_network
+
+- title: R Markdown Utilities
+  desc: Functions for R Markdown document processing
+  contents:
+  - starts_with("rnw2rmd")
+  - contains("rmarkdown")
+  - figure_caption_link
+
+- title: AI Integration
+  desc: Functions for integrating with AI services
+  contents:
+  - starts_with("zhipuai_")
+  - baidu_segment
+  - get_gpt4_response
+
+- title: Helper Functions
+  desc: Utility functions and helpers
+  contents:
+  - matches("^%.*%$")
+  - matches("utils")
+  - install_missing_packages
+  - is_child
+  - is_relative
+  - paste2
+  - print_git_log
+  - set_proxy
+  - setup_git_remote_url
+  - tag_by_regex
+  - type_of_id
+  - var2header
+
+articles:
+- title: Guides
+  navbar: ~
+  contents:
+  - biocyc
+  - zhipuai
+
+home:
+  sidebar:
+    structure: [links, license, community, citation, authors, dev]
+

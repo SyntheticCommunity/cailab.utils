@@ -9,3 +9,4 @@ inst/doc
 .env
 logs/
 __pycache__/
+docs

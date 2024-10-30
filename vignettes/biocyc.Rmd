@@ -2,7 +2,7 @@
 title: "BioCyc Database"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{biocyc}
+  %\VignetteIndexEntry{BioCyc Database}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -10,7 +10,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE  # 设置所有代码块默认不执行
 )
 ```
 
@@ -18,7 +19,6 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(cailab.utils)
-devtools::load_all()
 ```
 
 ## 建立会话

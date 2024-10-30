@@ -4,3 +4,7 @@ vignettes/todo.Rmd$
 ^Todo\.md$
 ^data-raw$
 .lintr
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
