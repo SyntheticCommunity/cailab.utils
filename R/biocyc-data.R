@@ -8,7 +8,8 @@
 #'   \item{description}{属性的详细说明}
 #' }
 #' @source BioCyc 数据库文档
-"properties"
+#' @name properties
+NULL
 
 #' BioCyc 服务可用转换类型
 #'
@@ -21,4 +22,5 @@
 #'   \item{description}{转换类型的详细说明}
 #' }
 #' @source BioCyc 数据库文档
-"transformations"
+#' @name transformations
+NULL
