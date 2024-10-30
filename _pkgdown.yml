@@ -7,11 +7,19 @@ template:
     primary: "#0054AD"
     border-radius: 0.5rem
 
+development:
+  mode: release
+  has_news: false
+  disable_cran_timeline: true
+
 navbar:
   structure:
-    left:  [intro, reference, articles, tutorials, news]
+    left:  [intro, reference, articles, todo]  # 移除 news
     right: [search, github]
   components:
+    intro:
+      text: 首页
+      href: index.html
     reference:
       text: Functions
       href: reference/index.html
@@ -20,6 +28,11 @@ navbar:
       menu:
       - text: BioCyc Database Guide
         href: articles/biocyc.html
+      - text: 智谱 AI API 指南
+        href: articles/zhipuai.html
+    todo:
+      text: TODO
+      href: todo.html
     github:
       icon: fab fa-github
       href: https://github.com/syntheticcommunity/cailab.utils
@@ -122,4 +135,5 @@ articles:
 home:
   sidebar:
     structure: [links, license, community, citation, authors, dev]
+
 
