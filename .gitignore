@@ -9,3 +9,6 @@ inst/doc
 logs/
 __pycache__/
 docs
+
+# Temporary files
+inst/tmp/

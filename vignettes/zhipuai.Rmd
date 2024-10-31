@@ -42,7 +42,14 @@ list = lapply(seq_along(data), function(i) {
   )
 })
 
-temp_file = tempfile(fileext = ".jsonl")
+# 根据环境选择临时文件路径
+if (Sys.getenv("GITHUB_ACTIONS") == "true") {
+  temp_dir <- file.path("inst", "tmp")
+  dir.create(temp_dir, showWarnings = FALSE, recursive = TRUE)
+  temp_file <- file.path(temp_dir, "batch_request.jsonl")
+} else {
+  temp_file <- tempfile(fileext = ".jsonl")
+}
 writeLines(unlist(list), temp_file)
 ```
 
@@ -105,7 +112,7 @@ batch_result
 ## 下载批处理任务结果
 
 ```{r eval = !is.null(batch_result)}
-result_file_path = tempfile(fileext = ".jsonl")
+result_file_path <- file.path(temp_dir, "batch_result.jsonl")
 zhipuai_file_download(batch_result$output, result_file_path)
 ```
 
