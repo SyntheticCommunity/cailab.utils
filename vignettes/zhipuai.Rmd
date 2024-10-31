@@ -10,8 +10,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  eval = FALSE  # 设置所有代码块默认不执行
+  comment = "#>"
 )
 ```
 
@@ -100,15 +99,15 @@ batch_status
 使用 `zhipuai_batch_status_check()` 函数持续检测批处理任务状态。待任务完成后，会返回任务结果的文件 URL。
 
 ```{r}
-result_file = zhipuai_batch_status_check(batch_id, interval = 1, timeout = 3)
-result_file
+batch_result = zhipuai_batch_status_check(batch_id, interval = 5, timeout = 600)
+batch_result
 ```
 
 ## 下载批处理任务结果
 
-```{r eval = FALSE}
+```{r eval = !is.null(batch_result)}
 result_file_path = tempfile(fileext = ".jsonl")
-zhipuai_file_download(result_file$output, result_file_path)
+zhipuai_file_download(batch_result$output, result_file_path)
 ```
 
 ## 解析批处理任务结果
