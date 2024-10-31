@@ -15,8 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-# library(cailab.utils)
-devtools::load_all()
+library(cailab.utils)
 ```
 
 ## 生成批处理任务
