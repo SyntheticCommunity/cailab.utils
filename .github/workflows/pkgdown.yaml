@@ -21,6 +21,9 @@ jobs:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      ZHIPUAI_API_KEY: ${{ secrets.ZHIPUAI_API_KEY }}
+      BIOCYC_USERNAME: ${{ secrets.BIOCYC_USERNAME }}
+      BIOCYC_PASSWORD: ${{ secrets.BIOCYC_PASSWORD }}
     permissions:
       contents: write
     steps:
