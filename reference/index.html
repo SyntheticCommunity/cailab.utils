@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">cailab.utils</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -16,13 +16,14 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../index.html">首页</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">News</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/biocyc.html">BioCyc Database Guide</a></li>
     <li><a class="dropdown-item" href="../articles/zhipuai.html">智谱 AI API 指南</a></li>
+    <li><a class="dropdown-item" href="../articles/youtube-summary.html">YouTube 视频摘要指南</a></li>
   </ul></li>
-<li class="nav-item"><a class="nav-link" href="../todo.html">TODO</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/syntheticcommunity/cailab.utils"><span class="fa fab fa-github"></span></a></li>
@@ -337,6 +338,53 @@
         </dt>
         <dd>Show the download links of figures when multiple devices are used</dd>
       </dl></div><div class="section level2">
+      <h2 id="video-summary">Video Summary<a class="anchor" aria-label="anchor" href="#video-summary"></a></h2>
+
+      <div class="section-desc"><p>Functions for video content processing and summarization</p></div>
+
+
+    </div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="yt_playlist_title.html">yt_playlist_title()</a></code>
+
+        </dt>
+        <dd>获取播放列表标题</dd>
+      </dl><dl><dt>
+
+          <code><a href="yt_sub_clean.html">yt_sub_clean()</a></code>
+
+        </dt>
+        <dd>解析字幕文件</dd>
+      </dl><dl><dt>
+
+          <code><a href="yt_sub_download.html">yt_sub_download()</a></code>
+
+        </dt>
+        <dd>下载 YouTube 视频字幕</dd>
+      </dl><dl><dt>
+
+          <code><a href="yt_summarize_video.html">yt_summarize_video()</a></code>
+
+        </dt>
+        <dd>处理单个视频并生成摘要</dd>
+      </dl><dl><dt>
+
+          <code><a href="yt_summary.html">yt_summary()</a></code>
+
+        </dt>
+        <dd>一键生成 YouTube 视频摘要</dd>
+      </dl><dl><dt>
+
+          <code><a href="yt_video_title.html">yt_video_title()</a></code>
+
+        </dt>
+        <dd>获取视频标题</dd>
+      </dl></div><div class="section level2">
       <h2 id="ai-integration">AI Integration<a class="anchor" aria-label="anchor" href="#ai-integration"></a></h2>
 
       <div class="section-desc"><p>Functions for integrating with AI services</p></div>
@@ -437,6 +485,12 @@
 
         </dt>
         <dd>获取 GPT-4 响应</dd>
+      </dl><dl><dt>
+
+          <code><a href="gpt_text_summary.html">gpt_text_summary()</a></code>
+
+        </dt>
+        <dd>生成视频摘要</dd>
       </dl></div><div class="section level2">
       <h2 id="helper-functions">Helper Functions<a class="anchor" aria-label="anchor" href="#helper-functions"></a></h2>
 

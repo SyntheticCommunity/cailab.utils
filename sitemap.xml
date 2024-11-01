@@ -3,9 +3,11 @@
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/Todo.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/articles/biocyc.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/articles/index.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/articles/youtube-summary.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/articles/zhipuai.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/authors.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/index.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/news/index.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/DT_output.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/DT_table.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/baidu_segment.html</loc></url>
@@ -29,6 +31,7 @@
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/gg_boxplot.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/gg_boxplot_with_group.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/ggpie.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/gpt_text_summary.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/graph_add_node.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/index.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/insert_citation.html</loc></url>
@@ -57,6 +60,14 @@
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/tree_from_aln.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/type_of_id.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/var2header.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/yt_is_playlist.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/yt_playlist_title.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/yt_playlist_videos.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/yt_sub_clean.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/yt_sub_download.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/yt_summarize_video.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/yt_summary.html</loc></url>
+<url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/yt_video_title.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/zhipuai_batch_build.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/zhipuai_batch_create.html</loc></url>
 <url><loc>https://syntheticcommunity.github.io/cailab.utils/reference/zhipuai_batch_list.html</loc></url>
