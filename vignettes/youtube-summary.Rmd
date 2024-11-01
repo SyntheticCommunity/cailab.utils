@@ -1,0 +1,151 @@
+---
+title: "youtube-summary"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{youtube-summary}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+collapse = TRUE,
+comment = "#>"
+)
+```
+
+## 简介
+
+本包提供了一套便捷的函数来下载 YouTube 视频字幕并使用 AI 生成视频内容摘要。主要功能包括：
+
+- 下载 YouTube 视频字幕
+- 清理和处理字幕文本
+- 使用 AI 生成视频内容摘要
+- 支持单个视频和播放列表的批量处理
+
+## 前置要求
+
+### 安装 yt-dlp
+
+我们使用命令行工具 `yt-dlp` 来下载 YouTube 视频字幕。
+
+- 在 Linux/Mac 上安装
+
+    ```{bash, eval=FALSE}
+    brew install yt-dlp # 使用 Homebrew
+    或
+    sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+    sudo chmod a+rx /usr/local/bin/yt-dlp
+    ```
+
+- 在 Windows 上安装
+
+    ```{bash, eval=FALSE}
+    scoop install yt-dlp # 使用 Scoop
+    ```
+
+    或从 https://github.com/yt-dlp/yt-dlp/releases 下载
+
+### 设置 API 密钥
+
+我们使用 [ChatAnywhere](https://chatanywhere.tech) 提供的 API 来生成视频摘要。
+
+```{r eval=FALSE}
+Sys.setenv(CHATANYWHERE_API_KEY = "your_api_key_here")
+``` 
+
+## 使用示例
+
+```{r}
+library(cailab.utils)
+```
+
+### 生成单个视频的摘要
+
+```{r}
+url <- "https://youtu.be/DrTCC9sorE8?si=B6guMfoFYC8Rw4lx"
+summary <- yt_summary(url, 
+    model = "glm-4-flash", 
+    base_url = "https://open.bigmodel.cn/api/paas/v4/", 
+    api_key = Sys.getenv("ZHIPUAI_API_KEY"))
+str(summary)
+```
+
+### 处理播放列表，获取每个视频的摘要
+
+```{r eval=FALSE}
+playlist_url <- "https://www.youtube.com/playlist?list=PL9HYL-VRX0oSFkdF4fJeY63eGDvgofcbn"
+summaries <- yt_summary(playlist_url, rettype = "tibble")
+summaries
+```
+
+```{r include=FALSE}
+summaries <- tibble::tibble(
+  title = c("视频1", "视频2", "视频3"),
+  url = c(
+    "https://youtu.be/abc123",
+    "https://youtu.be/def456", 
+    "https://youtu.be/ghi789"
+  ),
+  summary = c(
+    "这是第一个视频的摘要内容...",
+    "这是第二个视频的摘要内容...",
+    "这是第三个视频的摘要内容..."
+  )
+)
+summaries
+```
+
+## 详细步骤
+
+视频摘要各个步骤的函数使用方法。
+
+### 下载字幕
+
+```{r}
+subs_file <- yt_sub_download(url, lang = "en", output_file = "subtitles.txt")
+# 显示前10行字幕
+readLines(subs_file, n = 10) |> cat(sep = "\n")
+```
+
+### 清理字幕文本
+
+```{r}
+clean_text <- yt_sub_clean(subs_file)
+substring(clean_text, 1, 60)
+```
+
+### 生成摘要
+
+```{r}
+summary <- gpt_text_summary(
+    text = clean_text,
+    system_prompt = "请根据我提供的字幕为视频写一个结构化的中文摘要"
+)
+cat(summary)
+```
+
+## 辅助函数
+
+### 检查 URL 是否为播放列表
+
+```{r}
+playlist_url <- "https://www.youtube.com/playlist?list=PL9HYL-VRX0oSFkdF4fJeY63eGDvgofcbn"
+yt_is_playlist(playlist_url)
+```
+
+### 获取视频标题
+
+```{r}
+title <- yt_video_title(url)
+title
+```
+
+### 获取播放列表标题
+
+```{r}
+playlist_title <- yt_playlist_title(playlist_url)
+playlist_title
+```
+
+
