@@ -22,7 +22,9 @@ For instance, when you are install package from GitHub, but you are blocked by f
 Try to find the port automatically.
 }
 \examples{
-  set_proxy()
+\dontrun{
+  # set_proxy()
   # run command
   # tinytex::install()
+}
 }

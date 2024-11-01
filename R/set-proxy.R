@@ -12,10 +12,11 @@
 #' @return silent
 #' @export
 #'
-#' @examples
-#'   set_proxy()
+#' @examples \dontrun{
+#'   # set_proxy()
 #'   # run command
 #'   # tinytex::install()
+#' }
 set_proxy = function(url = "http://127.0.0.1", port = 36119){
   proxy = paste(url,port,sep=":")
   Sys.setenv(http_proxy = proxy)

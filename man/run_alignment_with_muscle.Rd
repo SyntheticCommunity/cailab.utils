@@ -18,6 +18,8 @@ a alignment object
 Run multiple sequence alignment with MUSCLE
 }
 \examples{
+\dontrun{
 file.path = system.file("extdata", "someORF.fa", package = "Biostrings")
 run_alignment_with_muscle(file.path)
+}
 }

@@ -9,9 +9,10 @@
 #' @return a alignment object
 #' @export
 #'
-#' @examples
+#' @examples \dontrun{
 #' file.path = system.file("extdata", "someORF.fa", package = "Biostrings")
 #' run_alignment_with_muscle(file.path)
+#' }
 run_alignment_with_muscle = function(fasta_file, quiet = TRUE){
   message("Runing multiple sequence alignment may take a while.")
   message("If you want to see the progress, set `quiet = FALSE`.")
