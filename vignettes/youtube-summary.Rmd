@@ -44,7 +44,7 @@ comment = "#>"
     scoop install yt-dlp # 使用 Scoop
     ```
 
-    或从 https://github.com/yt-dlp/yt-dlp/releases 下载
+    或从 [yt-dlp](https://github.com/yt-dlp/yt-dlp/releases) 下载
 
 ### 设置 API 密钥
 
@@ -52,7 +52,7 @@ comment = "#>"
 
 ```{r eval=FALSE}
 Sys.setenv(CHATANYWHERE_API_KEY = "your_api_key_here")
-``` 
+```
 
 ## 使用示例
 
@@ -147,5 +147,3 @@ title
 playlist_title <- yt_playlist_title(playlist_url)
 playlist_title
 ```
-
-

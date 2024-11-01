@@ -1,6 +1,8 @@
-# cailab.utils 0.5
+# News and Updates
 
-## 新功能
+## `cailab.utils` 0.5
+
+**新功能**
 
 - 添加了 `gpt_text_summary()` 函数，用于使用 ChatGPT API 生成文本摘要
 - 添加了一系列 YouTube 视频处理函数:
@@ -13,9 +15,9 @@
   - `yt_playlist_title()`: 获取播放列表标题
   - `yt_video_title()`: 获取视频标题
 
-# cailab.utils 0.4
+## `cailab.utils` 0.4
 
-## 新功能
+**新功能**
 
 - 添加了智谱 AI 相关函数:
   - 批处理任务相关:
