@@ -9,10 +9,8 @@
 name: R
 
 on:
-#  push:
-#    branches: [ "master" ]
-#  pull_request:
-#    branches: [ "master" ]
+  # 完全禁用 workflow，什么都不触发
+  workflow_dispatch: # 只保留手动触发选项，如果你想完全禁用，可以把这行也删除
 
 permissions:
   contents: read
