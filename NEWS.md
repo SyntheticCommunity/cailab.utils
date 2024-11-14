@@ -1,5 +1,25 @@
 # News and Updates
 
+## `cailab.utils` 0.6
+
+**新功能**
+
+- 添加了引物设计相关函数:
+  - 热力学计算:
+    - `calculate_thermodynamics()`: 计算 DNA 序列的热力学参数(ΔH, ΔS)
+    - `calculate_tm()`: 计算引物的熔解温度(Tm)
+    - `calculate_dG()`: 计算 DNA 序列的自由能变化(ΔG)
+  - 序列分析:
+    - `calculate_gc_content()`: 计算序列的 GC 含量
+    - `get_primer_info()`: 获取引物的基本信息
+  - 二级结构评估:
+    - `check_primer_structure()`: 全面评估引物的二级结构
+    - `check_self_complementarity()`: 检查自身互补配对
+    - `check_hairpin_structure()`: 检查发夹结构
+  - 结构可视化:
+    - `format_alignment()`: 格式化显示序列对齐
+    - `format_hairpin()`: 格式化显示发夹结构
+
 ## `cailab.utils` 0.5
 
 **新功能**
