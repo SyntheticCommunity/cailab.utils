@@ -1,0 +1,41 @@
+# config/cailab-meta.yaml
+# —— CAILAB 包基础元信息模板（仅含 Title, Description, Author） —
+
+author:
+  given: "Chun-Hui"
+  family: "Gao"
+  email: "gaospecial@gmail.com"
+  orcid: "0000-0002-1445-7939"
+
+packages:
+  cailab.utils:
+    Title: "CAILAB Meta-Package"
+    Description: "Lightweight aggregator that loads available CAILAB modules dynamically. Install individual components as needed."
+
+  cailab.config:
+    Title: "CAILAB configurations"
+    Description: "Manage environment configurations used in this suite."
+
+  cailab.biblio:
+    Title: "Bibliographic Utilities for CAILAB"
+    Description: "Tools for fetching, parsing, and managing scholarly metadata (DOIs, PubMed, Zotero, etc.)."
+
+  cailab.primer:
+    Title: "PCR Primer Design and Analysis"
+    Description: "Functions for melting temperature calculation, dimer checking, specificity validation."
+
+  cailab.llm:
+    Title: "Large Language Model Interface"
+    Description: "Connect to OpenAI, Anthropic, or local LLMs for text generation and analysis."
+
+  cailab.zotero:
+    Title: "Zotero Integration Tools"
+    Description: "Sync, query, and manage Zotero libraries via API."
+
+  cailab.amplicon:
+    Title: "Amplicon Sequencing Data Utilities"
+    Description: "Preprocessing, filtering, and visualization tools for 16S/ITS amplicon data."
+
+  cailab.statplot:
+    Title: "Statistical Plotting Helpers"
+    Description: "Enhanced wrappers around ggplot2, lattice, and base graphics for common bio-stats tasks."
